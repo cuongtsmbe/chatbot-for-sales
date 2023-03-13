@@ -1,3 +1,4 @@
 {
-    "limitUser":10
+    "limitUser":10,
+    "limitFanpage":5
 }
