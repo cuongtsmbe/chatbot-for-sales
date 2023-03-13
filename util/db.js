@@ -7,7 +7,7 @@ connection.connect();
 module.exports = {
     load: function(sql,condition) {
         return new Promise(function(resolve, reject) {
-         
+        
             connection.query(sql,condition, function(error, results, fields) {
                 if (error) {
                     console.log(error); 
