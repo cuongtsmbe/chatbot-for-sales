@@ -9,6 +9,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+
+require("./routers/_conversation.router").conversationRouters(app);
 require("./routers/user.router").userRouters(app);
 require("./routers/fanpage.router").fanpageRouters(app);
 
