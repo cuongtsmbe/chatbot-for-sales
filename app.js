@@ -9,6 +9,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+require("./routers/user.router").userRouters(app);
 
 app.get("/about",function(req,res){
  res.send("13/3/2023 .Setup chatbot");
