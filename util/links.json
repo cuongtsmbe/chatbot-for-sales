@@ -1,6 +1,6 @@
 {
     "CLIENT": {
-
+        "CONVERSATION_GET_BY_FANPAGE_AND_SENDER_ID" : "/conversations/fanpage/:fanpage_id/sender/:sender_id"
     },
     "ADMIN": {
 
@@ -27,6 +27,7 @@
         "FANPAGE_UPDATE_ACTIVE_BY_ID" : "/admin/fanpages/:fanpage_id/active",
 
         "FANPAGE_DELETE_ID" : "/admin/fanpages/:fanpage_id"
+        
     }
 }
 
