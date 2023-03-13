@@ -18,7 +18,7 @@ module.exports={
     
     //get details user(saler) by ID
     getOne:function(condition){
-        return db.getOneByCondition(sql,condition);
+        return db.getOneByCondition(TABLE,condition);
     },
 
     //search list by phone number
@@ -32,9 +32,9 @@ module.exports={
         return db.insert(TABLE,value);
     },
 
-    //update infomation user
+    //update infomation user by condition user id
     update:function(condition,value){
-        return db.load(`UPDATE ${TABLE} SET ? WHERE user_id=${condition.user_id}`,value);
+        return db.load(`UPDATE ${TABLE} SET ? WHERE ?`,[value,condition]);
     },
 
     //delete user
