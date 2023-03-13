@@ -79,7 +79,8 @@ module.exports = {
             address         :req.body.address,         
             role_type       :req.body.role_type,         
             email           :req.body.email,        
-            password        :req.body.password,          
+            password        :req.body.password,
+            status          :1          
         };
         
         //validate user input
@@ -149,7 +150,8 @@ module.exports = {
             address         :req.body.address,         
             role_type       :req.body.role_type,         
             email           :req.body.email,        
-            password        :req.body.password,          
+            password        :req.body.password,   
+            status          :req.body.status       
         };
 
         //validate user input
@@ -249,7 +251,7 @@ module.exports = {
             user_id         :req.params.user_id
         }
         var value={
-            role_type       : "viewer",       // change role is viewer
+            status       : 0,       //0 is deteted
         };
 
         //UUID validate
@@ -274,12 +276,12 @@ module.exports = {
         if(result.affectedRows==0){
             return res.status(400).json({
                     code:41,
-                    message:`update role ${condition.user_id} to viewer not success`
+                    message:`delete ${condition.user_id} not success`
                 })
         }
         return  res.status(200).json({
                     status:20,
-                    message:`update role ${condition.user_id} to viewer success`
+                    message:`delete ${condition.user_id}  success`
                 })
     }
 
