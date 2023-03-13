@@ -14,7 +14,19 @@
 
         "USER_UPDATE_ROLE_BY_USER_ID" : "/admin/users/:user_id/role" , 
 
-        "USER_DELETE_BY_USER_ID"    : "/admin/users/:user_id"
+        "USER_DELETE_BY_USER_ID"    : "/admin/users/:user_id",
+
+        "FANPAGE_GET_ALL"           :  "/admin/fanpages", 
+
+        "FANPAGE_GET_DETAILS_BY_ID" : "/admin/fanpages/:fanpage_id",
+
+        "FANPAGE_ADD_NEW"   : "/admin/fanpages",
+
+        "FANPAGE_UPDATE_BY_ID"  : "/admin/fanpages/:fanpage_id",
+
+        "FANPAGE_UPDATE_ACTIVE_BY_ID" : "/admin/fanpages/:fanpage_id/active",
+
+        "FANPAGE_DELETE_ID" : "/admin/fanpages/:fanpage_id"
     }
 }
 
