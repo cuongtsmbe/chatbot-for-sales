@@ -37,7 +37,7 @@ module.exports = {
         }
 
         return res.status(200).json({
-            code:1,
+            code:20,
             datalength:result.length,
             data:result,
             countAll:count[0],
@@ -64,7 +64,7 @@ module.exports = {
         }
 
         return res.status(200).json({
-            code:2,
+            code:20,
             data:result
         })
     },
