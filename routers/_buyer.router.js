@@ -18,9 +18,9 @@ module.exports = {
         }
 
         var condition={
-            fanpage_id:req.params.fanpage_id,
-            limit:config.limitBuyer,
-            offset:config.limitBuyer*(req.query.page-1),
+            fanpage_id      :req.params.fanpage_id,
+            limit           :config.limitBuyer,
+            offset          :config.limitBuyer*(req.query.page-1),
         };
 
         try{
@@ -52,10 +52,10 @@ module.exports = {
         }
 
         var condition={
-            fanpage_id:req.params.fanpage_id,
-            active:req.params.active,
-            limit:config.limitBuyer,
-            offset:config.limitBuyer*(req.query.page-1),
+            fanpage_id      :req.params.fanpage_id,
+            active          :req.params.active,
+            limit           :config.limitBuyer,
+            offset          :config.limitBuyer*(req.query.page-1),
         };
 
         try{
@@ -83,11 +83,11 @@ module.exports = {
     updateActiveByID:async function(req,res,next){
         //condition buyer_id
         var condition={
-            buyer_id     :req.params.buyer_id
+            buyer_id        :req.params.buyer_id
         }
 
         var value={     
-            active : req.body.active
+            active          :req.body.active
         };
 
         //UUID validate
