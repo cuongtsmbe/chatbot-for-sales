@@ -8,6 +8,8 @@ const {validateFanpageInput} = require("../util/validation");
 module.exports = {
     fanpageRouters:function(app){
         app.get(    LINK.ADMIN.FANPAGE_GET_ALL                              ,this.get);
+        app.get(    LINK.ADMIN.FANPAGE_GET_BY_USER_ID_AND_STATUS            ,this.getByStatusAndUserID);
+        app.get(    LINK.ADMIN.FANPAGE_GET_BY_CONDITION                     ,this.getByCondition);
         app.get(    LINK.ADMIN.FANPAGE_GET_DETAILS_BY_ID                    ,this.getOneByFanpageID);
         app.post(   LINK.ADMIN.FANPAGE_ADD_NEW                              ,this.add);
         app.put(    LINK.ADMIN.FANPAGE_UPDATE_BY_ID                         ,this.update);
@@ -31,6 +33,78 @@ module.exports = {
             var [count,result]=await Promise.all([
                 fanpageModel.countAll(),
                 fanpageModel.getList(condition)
+            ]);
+        }catch(e){
+            console.log(e);
+            return res.status(500).send("server error ");
+        }
+
+        return res.status(200).json({
+            code:20,
+            datalength:result.length,
+            data:result,
+            countAll:count[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*count[0].count/config.limitFanpage)
+        })
+
+    },
+
+    //get list fanpage by UserID and status
+    getByStatusAndUserID:async function(req,res,next){
+        //set default page
+        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+            req.query.page=1;
+        }
+
+        var condition={
+            user_id                 : req.params.user_id,
+            status                  : req.params.status,
+            limit                   : config.limitFanpage,
+            offset                  : config.limitFanpage*(req.query.page-1)
+        };
+
+        try{
+            var [count,result]=await Promise.all([
+                fanpageModel.countListByStatusAndUserId(condition),
+                fanpageModel.getListByStatusAndUserId(condition)
+            ]);
+        }catch(e){
+            console.log(e);
+            return res.status(500).send("server error ");
+        }
+
+        return res.status(200).json({
+            code:20,
+            datalength:result.length,
+            data:result,
+            countAll:count[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*count[0].count/config.limitFanpage)
+        })
+
+    },
+
+    //get list fanpage by condition(status,name,payment_due_date,page)
+    getByCondition:async function(req,res,next){
+        //set default page
+        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+            req.query.page=1;
+        }
+
+        var condition={
+            payment_due_date_start  : req.query.payment_due_date_start,
+            payment_due_date_end    : req.query.payment_due_date_end,
+            name                    : req.query.name,
+            limit                   : config.limitFanpage,
+            offset                  : config.limitFanpage*(req.query.page-1),
+            status                  : req.query.status
+        };
+
+        try{
+            var [count,result]=await Promise.all([
+                fanpageModel.countFanpagesByCondition(condition),
+                fanpageModel.getFanpagesByCondition(condition)
             ]);
         }catch(e){
             console.log(e);

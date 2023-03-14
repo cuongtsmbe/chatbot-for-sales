@@ -7,6 +7,7 @@ const {validateUserInput,validateRoleInput}    = require('../util/validation');
 module.exports = {
     userRouters:function(app){
         app.get(    LINK.ADMIN.USER_GET_ALL                                 ,this.get);
+        app.get(    LINK.ADMIN.USER_GET_BY_STATUS_AND_PHONE                 ,this.getByStatusAndPhone);
         app.get(    LINK.ADMIN.USER_GET_DETAILS_BY_USER_ID                  ,this.getOneByUserID);
         app.post(   LINK.ADMIN.USER_ADD_NEW                                 ,this.add);
         app.put(    LINK.ADMIN.USER_UPDATE_BY_USER_ID                       ,this.update);
@@ -22,8 +23,8 @@ module.exports = {
         }
 
         var condition={
-            limit:config.limitUser,
-            offset:config.limitUser*(req.query.page-1),
+            limit       :config.limitUser,
+            offset      :config.limitUser*(req.query.page-1),
         };
 
         try{
@@ -45,6 +46,40 @@ module.exports = {
             TotalPage:Math.ceil(1.0*count[0].count/config.limitUser)
         })
 
+    },
+
+    //get user by condition status(0:deleted,1:normal,2: admin block , 3 all status) and phone number
+    getByStatusAndPhone:async function(req,res,next){
+        //set default page
+        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+            req.query.page=1;
+        }
+
+        var condition={
+            status          :req.query.status,
+            phone_number    :req.query.phone_number,
+            limit           :config.limitUser,
+            offset          :config.limitUser*(req.query.page-1),
+        };
+
+        try{
+            var [count,result]=await Promise.all([
+                    userModel.countListByStatusAndPhone(condition),
+                    userModel.getListByStatusAndPhone(condition)
+            ]);
+        }catch(e){
+            console.log(e);
+            return res.status(500).send("server error ");
+        }
+
+        return res.status(200).json({
+            code:20,
+            datalength:result.length,
+            data:result,
+            countAll:count[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*count[0].count/config.limitUser)
+        })
     },
 
     //get one by condition user id (uuid)
