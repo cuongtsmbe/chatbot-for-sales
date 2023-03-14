@@ -1,6 +1,14 @@
 {
     "CLIENT": {
-        "CONVERSATION_GET_BY_FANPAGE_AND_SENDER_ID" : "/conversations/fanpage/:fanpage_id/sender/:sender_id"
+
+        "CONVERSATION_GET_BY_FANPAGE_AND_SENDER_ID" : "/conversations/fanpage/:fanpage_id/sender/:sender_id",
+        
+        "BUYER_GET_BY_FANPAGE_ID" : "/buyers/fanpage/:fanpage_id",
+    
+        "BUYER_GET_BY_ACTIVE_AND_FANPAGE_ID" : "/buyers/active/:active/fanpage/:fanpage_id",
+
+        "BUYER_UPDATE_ACTIVE_BY_ID" : "/buyers/:buyer_id/active"
+
     },
     "ADMIN": {
 
@@ -16,7 +24,7 @@
 
         "USER_DELETE_BY_USER_ID"    : "/admin/users/:user_id",
 
-        "FANPAGE_GET_ALL"           :  "/admin/fanpages", 
+        "FANPAGE_GET_ALL"  :  "/admin/fanpages", 
 
         "FANPAGE_GET_DETAILS_BY_ID" : "/admin/fanpages/:fanpage_id",
 
