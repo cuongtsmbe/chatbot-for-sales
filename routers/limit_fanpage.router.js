@@ -3,7 +3,7 @@ const LINK = require("../util/links.json");
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
-    buyerRouters:function(app){
+    limitFanpageRouters:function(app){
         app.get(        LINK.ADMIN.LIMIT_FANPAGE_GET_ALL                        ,this.get);
         app.post(       LINK.ADMIN.LIMIT_FANPAGE_ADD_NEW                        ,this.add);
         app.put(        LINK.ADMIN.LIMIT_FANPAGE_UPDATE_BY_ID                   ,this.update);
