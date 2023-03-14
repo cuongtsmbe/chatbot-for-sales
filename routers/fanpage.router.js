@@ -1,4 +1,5 @@
 const fanpageModel = require("../models/fanpage.model");
+const userModel = require("../models/user.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 const { validate: validateUuid } = require("uuid");
@@ -25,8 +26,8 @@ module.exports = {
         }
 
         var condition={
-            limit:config.limitFanpage,
-            offset:config.limitFanpage*(req.query.page-1),
+            limit       :config.limitFanpage,
+            offset      :config.limitFanpage*(req.query.page-1),
         };
 
         try{
@@ -195,17 +196,17 @@ module.exports = {
             if(dataFanpage.length>0){
                 return res.status(400).json({
                     code:41,
-                    mess:`Them khong thanh cong. ${value.fanpage_id} had exist`
+                    mess:`Them khong thanh cong. fanpage ${value.fanpage_id} had exist`
                 });
             }
 
             //check user_id exist in DB
-            var dataUser = await fanpageModel.getOne({user_id:value.user_id});
+            var dataUser = await userModel.getOne({user_id:value.user_id});
 
             if(dataUser.length==0){
                 return res.status(400).json({
                     code:42,
-                    mess:`Them khong thanh cong. ${value.user_id} not exist`
+                    mess:`Them khong thanh cong. user ${value.user_id} not exist`
                 });
             }
 
@@ -274,6 +275,17 @@ module.exports = {
         } 
 
         try{
+
+            //check user_id exist in DB
+            var dataUser = await userModel.getOne({user_id:value.user_id});
+
+             if(dataUser.length==0){
+                 return res.status(400).json({
+                     code:41,
+                     mess:`user ${value.user_id} not exist`
+                 });
+            }
+
             //update to Db
             var result=await fanpageModel.update(condition,value);
         }catch(e){
