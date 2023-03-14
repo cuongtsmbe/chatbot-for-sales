@@ -14,6 +14,8 @@
 
         "USER_GET_ALL" : "/admin/users" ,
 
+        "USER_GET_BY_STATUS_AND_PHONE"  : "/admin/users/status/and/phone",
+
         "USER_GET_DETAILS_BY_USER_ID" : "/admin/users/:user_id" ,
 
         "USER_ADD_NEW" : "/admin/users" ,
