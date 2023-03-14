@@ -312,7 +312,6 @@ module.exports = {
 
     //update active by fanpage id
     updateActive:async function(req,res,next){
-        //condition user id
         var condition={
             fanpage_id         :req.params.fanpage_id
         }

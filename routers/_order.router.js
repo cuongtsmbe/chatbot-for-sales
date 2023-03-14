@@ -179,7 +179,6 @@ module.exports = {
 
     //delete order by id
     delete: async function(req,res,next){
-        //condition user id
         var condition={
             order_id         :req.params.order_id
         }

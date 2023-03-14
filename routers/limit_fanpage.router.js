@@ -122,7 +122,6 @@ module.exports = {
 
     //delete record by id
     delete: async function(req,res,next){
-        //condition user id
         var condition={
             limit_fanpage_id         :req.params.limit_fanpage_id
         }
