@@ -10,9 +10,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 
+//CLIENT
+require("./routers/_buyer.router").buyerRouters(app);
+require("./routers/_order.router").orderRouters(app);
 require("./routers/_conversation.router").conversationRouters(app);
+//ADMIN
 require("./routers/user.router").userRouters(app);
 require("./routers/fanpage.router").fanpageRouters(app);
+
 
 app.get("/about",function(req,res){
  res.send("13/3/2023 .Setup chatbot");
