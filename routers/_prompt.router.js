@@ -5,7 +5,7 @@ const config    =require("../config/default.json");
 const { v4: uuidv4, validate: validateUuid } = require("uuid");
 
 module.exports = {
-    buyerRouters:function(app){
+    promptRouters:function(app){
         app.get(    LINK.CLIENT.PROMPT_GET_BY_FANPAGE_ID             ,this.getByFanpageID);
         app.get(    LINK.CLIENT.PROMPT_GET_BY_ID                     ,this.getByID);
         app.post(   LINK.CLIENT.PROMPT_ADD_NEW                       ,this.add);
