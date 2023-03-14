@@ -28,6 +28,10 @@
 
         "FANPAGE_GET_ALL"  :  "/admin/fanpages", 
 
+        "FANPAGE_GET_BY_USER_ID_AND_STATUS"    : "/admin/fanpages/user/:user_id/status/:status",
+
+        "FANPAGE_GET_BY_CONDITION"  : "/admin/fanpages/multiple/conditions",
+
         "FANPAGE_GET_DETAILS_BY_ID" : "/admin/fanpages/:fanpage_id",
 
         "FANPAGE_ADD_NEW"   : "/admin/fanpages",
