@@ -62,7 +62,15 @@
 
         "FANPAGE_UPDATE_ACTIVE_BY_ID" : "/admin/fanpages/:fanpage_id/active",
 
-        "FANPAGE_DELETE_ID" : "/admin/fanpages/:fanpage_id"
+        "FANPAGE_DELETE_ID" : "/admin/fanpages/:fanpage_id",
+
+        "LIMIT_FANPAGE_GET_ALL" : "/admin/limit/fanpage",
+
+        "LIMIT_FANPAGE_ADD_NEW" : "/admin/limit/fanpage",
+
+        "LIMIT_FANPAGE_UPDATE_BY_ID" : "/admin/limit/fanpage/:limit_fanpage_id",
+
+        "LIMIT_FANPAGE_DELETE_BY_ID" : "/admin/limit/fanpage/:limit_fanpage_id"
         
     }
 }
