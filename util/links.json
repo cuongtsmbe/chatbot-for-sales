@@ -17,7 +17,19 @@
 
         "ORDER_UPDATE_CONTENT_BY_ID" : "/orders/:order_id",
 
-        "ORDER_DELETE_BY_ID"    : "/orders/:order_id"
+        "ORDER_DELETE_BY_ID"    : "/orders/:order_id",
+
+        "PROMPT_GET_BY_FANPAGE_ID"  : "/prompts/fanpage/:fanpage_id",
+
+        "PROMPT_GET_BY_ID"  : "/prompts/:prompt_id",
+
+        "PROMPT_ADD_NEW"    : "/prompts",
+
+        "PROMPT_UPDATE_CONTENT_BY_ID"   : "/prompts/:prompt_id/content",
+
+        "PROMPT_UPDATE_ACTIVE_BY_ID"    : "/prompts/:prompt_id/active",
+
+        "PROMPT_DELETE_BY_ID"   : "/prompts/:prompt_id"
 
     },
     "ADMIN": {
