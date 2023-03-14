@@ -8,6 +8,21 @@ module.exports={
         return result;
     },
 
+    //get list user by status (0:deleted,1:normal,2:admin block,3:get all status) in DB by page
+    getListByStatusAndPhone: function(condition){
+        var result;
+        if(condition.status == 3){
+            result  = db.load(`select * from ${TABLE} where phone_number LIKE ? limit ? offset ?`,
+            [condition.phone_number,condition.limit,condition.offset]);
+        }else{
+            result  = db.load(`select * from ${TABLE} where status = ? and phone_number LIKE ? limit ? offset ?`,
+            [condition.status,condition.phone_number,condition.limit,condition.offset]);
+        }
+
+        return result;
+    },
+
+
     //count all user
     countAll:function(){
         var result;
@@ -15,16 +30,24 @@ module.exports={
         return result;
     },
 
-    
+    //count list user by status (0:deleted,1:normal,2:admin block,3:get all status) in DB by page
+    countListByStatusAndPhone: function(condition){
+        var result;
+        if(condition.status == 3){
+            result  = db.load(`select count(*) as count from ${TABLE} where phone_number LIKE ? `,
+            [condition.phone_number]);
+        }else{
+            result  = db.load(`select count(*) as count from ${TABLE} where status = ? and phone_number LIKE ?`,
+            [condition.status,condition.phone_number]);
+        }
+
+        return result;
+    },
+        
+
     //get details user(saler) by ID
     getOne:function(condition){
         return db.getOneByCondition(TABLE,condition);
-    },
-
-    //search list by phone number
-    searchByPhone:function(condition){
-        var sql=`select * from ${TABLE} where phone_number LIKE ? `;
-        return db.load(sql,condition);
     },
 
     //add new user 
