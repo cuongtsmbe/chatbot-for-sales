@@ -1,7 +1,8 @@
 {
-    "limitUser":10,
-    "limitFanpage":5,
+    "limitUser"     :10,
+    "limitFanpage"  :5,
     "limitConversation":10,
-    "limitBuyer":5,
-    "limitOrder":5
+    "limitBuyer"    :5,
+    "limitOrder"    :5,
+    "limitPrompt"   :5
 }

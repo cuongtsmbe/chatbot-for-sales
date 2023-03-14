@@ -7,7 +7,7 @@
 # testing
 /coverage
 /services
-
+/xem.txt
 # production
 /build
 /mysql
