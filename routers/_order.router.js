@@ -1,4 +1,6 @@
 const orderModel = require("../models/order.model");
+const fanpageModel = require("../models/fanpage.model");
+const userModel = require("../models/user.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 const { v4: uuidv4, validate: validateUuid } = require("uuid");
@@ -57,7 +59,7 @@ module.exports = {
     getOneByOrderID:async function(req,res,next){
 
         var condition={
-            order_id:req.params.order_id
+            order_id        :req.params.order_id
         };
         
         try{
@@ -90,6 +92,27 @@ module.exports = {
         };
         
         try{
+
+            //check fanpage id in DB
+            var dataFanpage = await fanpageModel.getOne({fanpage_id:value.fanpage_id});
+
+            if(dataFanpage.length == 0){
+                return res.status(400).json({
+                    code:41,
+                    mess:`fanpage ${value.fanpage_id} not exist`
+                });
+            }
+
+            //check user_id exist in DB
+            var dataUser = await userModel.getOne({user_id:value.user_id});
+
+            if(dataUser.length==0){
+                return res.status(400).json({
+                    code:42,
+                    mess:` user ${value.user_id} not exist`
+                });
+            }
+
             //insert to Db
             var result=await orderModel.add(value);
         }catch(e){
@@ -102,7 +125,7 @@ module.exports = {
 
         if(result.affectedRows==0){
             return res.status(400).json({
-                    code:42,
+                    code:43,
                     message:"Them khong thanh cong"
                 })
         }
@@ -170,7 +193,6 @@ module.exports = {
         }
 
         try{
-            //delete is change status in Db
             var result=await orderModel.delete(condition);
         }catch(e){
             console.log(e);
