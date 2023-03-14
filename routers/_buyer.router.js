@@ -4,7 +4,7 @@ const config    =require("../config/default.json");
 const { validate: validateUuid } = require("uuid");
 
 module.exports = {
-    fanpageRouters:function(app){
+    buyerRouters:function(app){
         app.get(    LINK.CLIENT.BUYER_GET_BY_FANPAGE_ID                     ,this.getByFanpageID);
         app.get(    LINK.CLIENT.BUYER_GET_BY_ACTIVE_AND_FANPAGE_ID          ,this.getByActiveAndFanpageID);
         app.put(    LINK.CLIENT.BUYER_UPDATE_ACTIVE_BY_ID                   ,this.updateActiveByID);
