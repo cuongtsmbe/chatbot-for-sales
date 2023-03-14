@@ -18,7 +18,7 @@ require("./routers/_prompt.router").promptRouters(app);
 //ADMIN
 require("./routers/user.router").userRouters(app);
 require("./routers/fanpage.router").fanpageRouters(app);
-
+require("./routers/limit_fanpage.router").limitFanpageRouters(app);
 
 app.get("/about",function(req,res){
  res.send("13/3/2023 .Setup chatbot");
