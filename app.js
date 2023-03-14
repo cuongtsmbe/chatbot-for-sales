@@ -14,6 +14,7 @@ app.use(bodyParser.json())
 require("./routers/_buyer.router").buyerRouters(app);
 require("./routers/_order.router").orderRouters(app);
 require("./routers/_conversation.router").conversationRouters(app);
+require("./routers/_prompt.router").promptRouters(app);
 //ADMIN
 require("./routers/user.router").userRouters(app);
 require("./routers/fanpage.router").fanpageRouters(app);
