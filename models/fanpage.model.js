@@ -11,14 +11,19 @@ module.exports={
 
     //count all fanpage
     countAll:function(){
-        var result;
-        result  = db.load(`select count(*) as count from ${TABLE} `);
+        var result  = db.load(`select count(*) as count from ${TABLE} `);
         return result;
     },
     
     //get details fanpage ID
     getOne:function(condition){
         return db.getOneByCondition(TABLE,condition);
+    },
+
+    //get details condition user ID and fanpage ID 
+    getOneByUserIDAndFanpageID:function(condition){
+        var result  = db.load(`select * from ${TABLE} where user_id = ? and fanpage_id = ? `,condition);
+        return result;
     },
 
     //get list fanpage by user id and status(0:deleted,1:normal,2:admin block,3:get all status)
