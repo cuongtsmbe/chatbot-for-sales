@@ -4,7 +4,7 @@ const LINK = require("../util/links.json");
 
 module.exports={
     //Authorization middleware 
-    loggedIn:function (req, res, next) {
+    authorize:function (req, res, next) {
         let token = req.header('Authorization');
         let req_url = req.originalUrl;
 
