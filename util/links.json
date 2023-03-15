@@ -35,7 +35,15 @@
 
         "PROMPT_DELETE_BY_ID"   : "/prompts/:prompt_id",
 
-        "USER_GET_DETAILS_BY_USER_ID" : "/users/:user_id" 
+        "USER_GET_DETAILS_BY_USER_ID" : "/users/:user_id",
+
+        "FANPAGE_GET_BY_STATUS" : "/fanpages/status/:status",
+
+        "FANPAGE_GET_ONE_BY_FANPAGE_ID" : "/fanpages/:fanpage_id",
+
+        "FANPAGE_UPDATE_ACTIVE_BY_ID"   : "/fanpages/:fanpage_id",
+
+        "FANPAGE_DELETE_ID" : "/fanpages/:fanpage_id"
 
     },
     "ADMIN": {
