@@ -125,7 +125,7 @@ module.exports = {
             //thong tin khong hợp lệ
             return res.status(400).json({
                 code:40,
-                mess:validationResult
+                message:validationResult
             });
 
         } 
@@ -137,7 +137,7 @@ module.exports = {
             if(data.length>0){
                 return res.status(400).json({
                     code:41,
-                    mess:`Them khong thanh cong. ${value.user_name} had exist`
+                    message:`Them khong thanh cong. ${value.user_name} had exist`
                 });
             }
 
@@ -147,7 +147,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -196,7 +196,7 @@ module.exports = {
             //thong tin khong hợp lệ
             return res.status(400).json({
                 code:41,
-                mess:validationResult
+                message:validationResult
             });
 
         } 
@@ -208,7 +208,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
         if(result.affectedRows==0){
@@ -251,7 +251,7 @@ module.exports = {
             //role type khong hop le
             return res.status(400).json({
                 code:41,
-                mess:validateRoleResult
+                message:validateRoleResult
             });
 
         }
@@ -263,7 +263,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -304,7 +304,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 

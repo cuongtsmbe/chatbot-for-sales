@@ -30,7 +30,7 @@ module.exports = {
             if(fanpageResult.length == 0){
                     return res.status(400).json({
                         code:40,
-                        mess:`fanpage ${condition.fanpage_id} not exist`
+                        message:`fanpage ${condition.fanpage_id} not exist`
                     });
             }
 

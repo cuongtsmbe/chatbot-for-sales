@@ -99,7 +99,7 @@ module.exports = {
             if(dataFanpage.length == 0){
                 return res.status(400).json({
                     code:41,
-                    mess:`fanpage ${value.fanpage_id} not exist`
+                    message:`fanpage ${value.fanpage_id} not exist`
                 });
             }
 
@@ -109,7 +109,7 @@ module.exports = {
             if(dataUser.length==0){
                 return res.status(400).json({
                     code:42,
-                    mess:` user ${value.user_id} not exist`
+                    message:` user ${value.user_id} not exist`
                 });
             }
 
@@ -119,7 +119,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -161,7 +161,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -197,7 +197,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 

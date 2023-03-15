@@ -165,7 +165,7 @@ module.exports = {
             //fanpage_id khong hợp lệ
             return res.status(400).json({
                 code:40,
-                mess:"fanpage_id không hợp lệ."
+                message:"fanpage_id không hợp lệ."
             });
         }
         
@@ -184,7 +184,7 @@ module.exports = {
             //thong tin khong hợp lệ
             return res.status(400).json({
                 code:40,
-                mess:validationResult
+                message:validationResult
             });
 
         } 
@@ -196,7 +196,7 @@ module.exports = {
             if(dataFanpage.length>0){
                 return res.status(400).json({
                     code:41,
-                    mess:`Them khong thanh cong. fanpage ${value.fanpage_id} had exist`
+                    message:`Them khong thanh cong. fanpage ${value.fanpage_id} had exist`
                 });
             }
 
@@ -206,7 +206,7 @@ module.exports = {
             if(dataUser.length==0){
                 return res.status(400).json({
                     code:42,
-                    mess:`Them khong thanh cong. user ${value.user_id} not exist`
+                    message:`Them khong thanh cong. user ${value.user_id} not exist`
                 });
             }
 
@@ -217,7 +217,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -269,7 +269,7 @@ module.exports = {
             //thong tin khong hợp lệ
             return res.status(400).json({
                 code:40,
-                mess:validationResult
+                message:validationResult
             });
 
         } 
@@ -282,7 +282,7 @@ module.exports = {
              if(dataUser.length==0){
                  return res.status(400).json({
                      code:41,
-                     mess:`user ${value.user_id} not exist`
+                     message:`user ${value.user_id} not exist`
                  });
             }
 
@@ -292,7 +292,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
         if(result.affectedRows==0){
@@ -324,7 +324,7 @@ module.exports = {
             // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
-                mess:"active must be boolean"
+                message:"active must be boolean"
             });
         }
 
@@ -335,7 +335,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -371,7 +371,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 

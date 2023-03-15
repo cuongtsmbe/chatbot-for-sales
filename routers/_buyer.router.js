@@ -102,7 +102,7 @@ module.exports = {
             // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
-                mess:"active must be boolean"
+                message:"active must be boolean"
             });
         }
 
@@ -113,7 +113,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
         if(result.affectedRows==0){

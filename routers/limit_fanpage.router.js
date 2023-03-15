@@ -41,7 +41,7 @@ module.exports = {
             // count không phải là kiểu number
             return res.status(400).json({
                 code:41,
-                mess:"count must be number"
+                message:"count must be number"
             });
         }
 
@@ -52,7 +52,7 @@ module.exports = {
             if(data.length>0){
                 return res.status(400).json({
                     code:41,
-                    mess:`Them khong thanh cong.DB contains only 1 row of data.`
+                    message:`Them khong thanh cong.DB contains only 1 row of data.`
                 });
             }
 
@@ -62,7 +62,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -93,7 +93,7 @@ module.exports = {
             // count không phải là kiểu number
             return res.status(400).json({
                 code:41,
-                mess:"count must be number"
+                message:"count must be number"
             });
         }
 
@@ -104,7 +104,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
@@ -140,7 +140,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                     code:50,
-                    mess:"server error "
+                    message:"server error "
                 });
         }
 
