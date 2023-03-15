@@ -1,6 +1,8 @@
 {
     "CLIENT": {
 
+        "AUTHENTICATION_LOGIN"  : "/authentication/login/local",
+
         "CONVERSATION_GET_BY_FANPAGE_AND_SENDER_ID" : "/conversations/fanpage/:fanpage_id/sender/:sender_id",
         
         "BUYER_GET_BY_FANPAGE_ID" : "/buyers/fanpage/:fanpage_id",
