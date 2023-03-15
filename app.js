@@ -11,6 +11,7 @@ app.use(bodyParser.json())
 
 
 //CLIENT
+require("./routers/_authentication.router").authRouters(app);
 require("./routers/_buyer.router").buyerRouters(app);
 require("./routers/_order.router").orderRouters(app);
 require("./routers/_conversation.router").conversationRouters(app);
