@@ -8,8 +8,8 @@ require('dotenv').config();
 
 module.exports = {
     authRouters:function(app){
-        app.post(    LINK.CLIENT.AUTHENTICATION_LOGIN                     ,this.loginLocal);
-       
+        app.post(    LINK.CLIENT.AUTHENTICATION_LOGIN                           ,this.loginLocal);
+        app.post(    LINK.CLIENT.AUTHENTICATION_CREATE_ACCESSTOKEN              ,this.createAccessToken);
     },
 
     //LOGIN LOCAL
@@ -55,8 +55,17 @@ module.exports = {
                         message:"Incorrect username or password."
                     });   
                 }
-                //Create and assign token
-                return res.status(200).json(await tokenUtil.GetAccessTokenAndRefreshTokenOfUser(user));
+
+                try{
+                    //Create and assign token
+                    return res.status(200).json(tokenUtil.GetAccessTokenAndRefreshTokenOfUser(user));
+
+                }catch(e){
+                    return res.status(400).json({
+                        code    :42,
+                        message :"create accesstoken and resfreshtoken error."
+                    });
+                }
                 
             }catch(err){
                 console.log(err);
@@ -67,4 +76,40 @@ module.exports = {
             }      
         });
     },
+
+
+    //create accesstoken from refreshtoken
+    createAccessToken:async function(req,res,next){
+        //kiểm tra  refreshToken
+        try{
+            var refreshToken=req.body.refreshToken;
+        
+            if(!refreshToken){
+                    return res.status(400).json({
+                        code    :40,
+                        message :"refreshToken empty/null/undefined."
+                    });
+            }        
+
+            //verified resfreshToken 
+            const verified = tokenUtil.verifyToken(refreshToken, process.env.TOKEN_SECRET_REFRESHTOKEN);  
+            
+            try{
+                return res.status(200).json(tokenUtil.GetAccessToken(verified));
+            }catch(e){
+                return res.status(400).json({
+                    code    :42,
+                    message :"create accesstoken error."
+                });
+            }
+       }catch(err){
+            console.log(err);
+
+            return res.status(400).json({
+                code    :41,
+                message :err
+            });
+
+       } 
+   }
 }
