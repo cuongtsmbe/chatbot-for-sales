@@ -33,7 +33,9 @@
 
         "PROMPT_UPDATE_ACTIVE_BY_ID"    : "/prompts/:prompt_id/active",
 
-        "PROMPT_DELETE_BY_ID"   : "/prompts/:prompt_id"
+        "PROMPT_DELETE_BY_ID"   : "/prompts/:prompt_id",
+
+        "USER_GET_DETAILS_BY_USER_ID" : "/users/:user_id" 
 
     },
     "ADMIN": {
