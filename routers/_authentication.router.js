@@ -8,7 +8,7 @@ require('dotenv').config();
 
 module.exports = {
     authRouters:function(app){
-        app.get(    LINK.CLIENT.AUTHENTICATION_LOGIN                     ,this.loginLocal);
+        app.post(    LINK.CLIENT.AUTHENTICATION_LOGIN                     ,this.loginLocal);
        
     },
 
