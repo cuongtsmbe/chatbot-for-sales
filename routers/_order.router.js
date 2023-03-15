@@ -1,6 +1,5 @@
 const orderModel = require("../models/order.model");
 const fanpageModel = require("../models/fanpage.model");
-const userModel = require("../models/user.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 const { v4: uuidv4, validate: validateUuid } = require("uuid");
@@ -80,7 +79,7 @@ module.exports = {
 
     //add new order
     add:async function(req,res,next){
-
+       
         var value={
             order_id            : uuidv4(),           
             fanpage_id          : req.body.fanpage_id,
@@ -90,26 +89,21 @@ module.exports = {
             modified_date       : req.body.modified_date,
             status              : 1
         };
+
+        var condition = {
+            fanpage_id  :value.fanpage_id,
+            user_id     :req.user.user_id
+        }
         
         try{
 
             //check fanpage id in DB
-            var dataFanpage = await fanpageModel.getOne({fanpage_id:value.fanpage_id});
+            var dataFanpage = await fanpageModel.getOneByUserIDAndFanpageID(condition);
 
             if(dataFanpage.length == 0){
                 return res.status(400).json({
                     code:41,
                     message:`fanpage ${value.fanpage_id} not exist`
-                });
-            }
-
-            //check user_id exist in DB
-            var dataUser = await userModel.getOne({user_id:value.user_id});
-
-            if(dataUser.length==0){
-                return res.status(400).json({
-                    code:42,
-                    message:` user ${value.user_id} not exist`
                 });
             }
 
