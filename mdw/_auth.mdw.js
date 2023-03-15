@@ -4,7 +4,7 @@ const LINK = require("../util/links.json");
 
 module.exports={
     //Authorization middleware 
-    loggedIn:async function (req, res, next) {
+    loggedIn:function (req, res, next) {
         let token = req.header('Authorization');
         let req_url = req.originalUrl;
 
@@ -34,6 +34,7 @@ module.exports={
             if(verified.status == 0){
                 return res.status(403).send("The account does not exist on the system.");
             }
+            
             if(verified.status == 2){
                 return res.status(403).send("The account has been blocked.");
             }
