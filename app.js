@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 require('dotenv').config();
-const port = process.env.PORT || 80;
+const port = process.env.PORT;
 const bodyParser = require('body-parser');
 const authMdw   = require("./mdw/_auth.mdw");
 const facebookUtil = require("./util/webhooks");

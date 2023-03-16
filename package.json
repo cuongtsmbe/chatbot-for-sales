@@ -1,4 +1,14 @@
 {
+  "name": "chatbotZi",
+  "version": "1.0.0",
+  "description": "chatbotZi 2023/3/16",
+  "main": "app",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "author": "phanhuucuong",
+  "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
     "crypto": "^1.0.1",
@@ -9,5 +19,8 @@
     "request": "^2.88.2",
     "string-to-arraybuffer": "^1.0.2",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.21"
   }
 }
