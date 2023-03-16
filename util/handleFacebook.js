@@ -1,6 +1,7 @@
 const fanpageModel = require("../models/fanpage.model");
 const buyerModel = require("../models/buyer.model");
 const orderModel = require("../models/order.model");
+const conversationModel = require("../models/conversation.model");
 const { v4: uuidv4 } = require("uuid"); 
 const openaiUtil  = require("./openai");
 
@@ -10,12 +11,46 @@ module.exports = {
         let response;
         
         let checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
-        //chặn hook có sender là fanpage và received là buyer
-        if(checkFanpage.length > 0){
+
+        if(checkFanpage.length > 0 && checkFanpage[0].active === true && checkFanpage[0].status === 1 ){
+            //chặn(yêu cầu đến openAI) khi AI trong fanpage gửi qua buyer
             return true;
         }
+
+        //người quản trị fanpage gửi qua buyer (khi fanpage đã tắt AI)
+        if(checkFanpage.length > 0){
+            let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
+            let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
+            //add to coversation when AIresponse
+            conversationModel.add({
+                conversation_id :uuidv4(),
+                fanpage_id      :sender_psid,
+                sender_psid     :received_message.recipient.id,
+                message         :received_message.text,
+                type            :"Seller",
+                create_date     :createdDatetime
+            });
+
+            return true;
+        }
+
         let buyer_facebook_id = sender_psid;
         let fanpage_id = received_message.recipient.id;
+
+        // Định dạng chuỗi datetime cho MySQL
+        // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
+        let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
+        let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
+
+        //add to coversation(user -> fanpage)
+        conversationModel.add({
+            conversation_id :uuidv4(),
+            fanpage_id      :fanpage_id,
+            sender_psid     :buyer_facebook_id,
+            message         :received_message.text,
+            type            :"Buyer",
+            create_date     :createdDatetime
+        });
 
         //get details buyer by fanpage id and facebook sender_psid
         let BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
@@ -27,7 +62,7 @@ module.exports = {
         let FanpageDetails = await fanpageModel.getOne({fanpage_id:fanpage_id});
 
         //check fanpage exist in DB 
-        if(FanpageDetails === null || FanpageDetails.length == 0){
+        if(FanpageDetails === null || FanpageDetails.length === 0){
             console.log("Fanpage id khong duoc tim thay trong DB.");
             return false;
         }else{
@@ -35,7 +70,7 @@ module.exports = {
         } 
 
         //blocked/removed fanpage
-        if(FanpageDetails.status!=1){
+        if(FanpageDetails.status!==1){
             return false;
         }
         
@@ -48,16 +83,11 @@ module.exports = {
         if (received_message.text) {  
             // Create the payload for a AI response text message, which
             // will be added to the body of our request to the Send API
-            
+
             //thêm "donhang" vào DB. để phòng trg hợp khách hàng ghi sai/không ghi : "LENDON" || lendon
             if(received_message.text.includes("LENDON")||received_message.text.includes("lendon")||received_message.text.includes("donhang")){
                 
-                let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
                 let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
-
-                // Định dạng chuỗi datetime cho MySQL
-                // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
-                let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
                 let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
 
                 var value={
@@ -74,18 +104,34 @@ module.exports = {
                 await orderModel.add(value);
             }
 
-            let AIreponse=await openaiUtil.GetAIReplyForBuyer(BuyerDetails,received_message.text);
+            //AI reply
+            //BuyerDetails is array 
+            let AIresponse=await openaiUtil.GetAIReplyForBuyer(buyer_facebook_id,BuyerDetails,FanpageDetails,received_message.text);
             
+            //add coversation after AI response
+            createdDate = new Date();
+            createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
+
+            //add to coversation when AIresponse
+            conversationModel.add({
+                conversation_id :uuidv4(),
+                fanpage_id      :fanpage_id,
+                sender_psid     :buyer_facebook_id,
+                message         :AIresponse,
+                type            :"Seller",
+                create_date     :createdDatetime
+            });
+
             console.log(`------user id:${sender_psid}---------`);
             console.log("\n\n");
             console.log("--------Chat----------");
             console.log(`user: ${received_message.text}`);
-            console.log(`AI: ${AIreponse}`);
+            console.log(`AI: ${AIresponse}`);
             console.log("--------###-------\n\n");
             console.log("\n");
 
             response = {
-                "text": AIreponse
+                "text": AIresponse
             }
         } else if (received_message.attachments) {
             // Get the URL of the message attachment
