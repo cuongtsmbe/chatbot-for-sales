@@ -4,12 +4,17 @@ require('dotenv').config();
 const port = process.env.PORT || 80;
 const bodyParser = require('body-parser');
 const authMdw   = require("./mdw/_auth.mdw");
+const facebookUtil = require("./util/webhooks");
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+
+//Add support for GET requests to facebook webhook
+app.get("/webhook",facebookUtil.getWebHook);
+app.post('/webhook', facebookUtil.postWebHook);
 
 //Authorization middleware
 authMdw.authorize();
