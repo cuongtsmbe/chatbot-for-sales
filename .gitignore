@@ -6,8 +6,8 @@
 .pnp.js
 # testing
 /coverage
-/services
 /xem.txt
+/util/openai.js
 # production
 /build
 /mysql
