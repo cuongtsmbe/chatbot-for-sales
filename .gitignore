@@ -7,7 +7,6 @@
 # testing
 /coverage
 /xem.txt
-/util/openai.js
 # production
 /build
 /mysql

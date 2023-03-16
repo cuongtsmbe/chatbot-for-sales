@@ -35,6 +35,11 @@ module.exports={
         return result;
     },
 
+    //add new buyer 
+    add:function(value){
+        return db.insert(TABLE,value);
+    },
+
     //update active buyer by fanpage id
     update:function(condition,value){
         return db.load(`UPDATE ${TABLE} SET ? WHERE ?`,[value,condition]);
