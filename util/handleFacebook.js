@@ -2,7 +2,7 @@ const fanpageModel = require("../models/fanpage.model");
 const buyerModel = require("../models/buyer.model");
 const orderModel = require("../models/order.model");
 const { v4: uuidv4 } = require("uuid"); 
-const openaiUtil  = require("../util/openai");
+const openaiUtil  = require("./openai");
 
 module.exports = {
     //handle Messenger text or file
