@@ -18,7 +18,7 @@ module.exports={
 
     //get prompt actived by fanpage id
     getPromptActivedByFanpageID:function(condition){
-        var result   = db.load(`select count(*) as count from ${TABLE} where fanpage_id = ? and active = ? `,
+        var result   = db.load(`select * from ${TABLE} where fanpage_id = ? and active = ? `,
         [condition.fanpage_id,condition.active]);
         return result;
     },
