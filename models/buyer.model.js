@@ -9,6 +9,13 @@ module.exports={
         return result;
     },
 
+    //get details by fanpage id and facebook id of buyer
+    getOneByFanpageIDAndFacebookIDOfBuyer:function(condition){
+        var result   = db.load(`select * from ${TABLE} where fanpage_id = ? and facebook_id = ? `,
+        [condition.fanpage_id,condition.facebook_id]);
+        return result;
+    },
+
     //count buyer by fanpage id
     countBuyerByFanpageID: function(condition){
         var result   = db.load(`select count(*) as count from ${TABLE} where fanpage_id = ?`,condition.fanpage_id);
