@@ -51,15 +51,25 @@ module.exports = {
             
             //thêm "donhang" vào DB. để phòng trg hợp khách hàng ghi sai/không ghi : "LENDON" || lendon
             if(received_message.text.includes("LENDON")||received_message.text.includes("lendon")||received_message.text.includes("donhang")){
+                
+                let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
+                let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+
+                // Định dạng chuỗi datetime cho MySQL
+                // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
+                let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
+                let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
+
                 var value={
                     order_id            : uuidv4(),           
                     fanpage_id          : fanpage_id,
                     buyer_id            : buyer_id,
                     content             : received_message.text,
-                    created_date        : "sửa lại",
-                    modified_date       : "sửa lại",
+                    created_date        : createdDatetime,
+                    modified_date       : modifiedDatetime,
                     status              : 1
                 };
+
                 //add order in DB
                 await orderModel.add(value);
             }

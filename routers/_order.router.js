@@ -79,14 +79,18 @@ module.exports = {
 
     //add new order
     add:async function(req,res,next){
-       
+
+        let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+        let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
+
+
         var value={
             order_id            : uuidv4(),           
             fanpage_id          : req.body.fanpage_id,
             buyer_id            : req.body.buyer_id,
             content             : req.body.content,
             created_date        : req.body.created_date,
-            modified_date       : req.body.modified_date,
+            modified_date       : modifiedDatetime,
             status              : 1
         };
 
@@ -136,8 +140,13 @@ module.exports = {
         var condition={
             order_id         :req.params.order_id
         }
+
+        let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+        let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
+
         var value={
-            content       :req.body.content,      
+            content             : req.body.content,   
+            modified_date       : modifiedDatetime,   
         };
 
         //UUID validate

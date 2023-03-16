@@ -79,12 +79,19 @@ module.exports = {
     //add new prompt
     add:async function(req,res,next){
 
+        let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
+        let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+
+        let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
+        let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
+
+
         var value={
             prompt_id           :uuidv4(),           
             active              :false,   //default is false
             content             :req.body.content,           
-            create_date         :req.body.create_date,         
-            modified_date       :req.body.modified_date,         
+            create_date         :createdDatetime,         
+            modified_date       :modifiedDatetime,         
             fanpage_id          :req.body.fanpage_id          
         };
         
@@ -130,9 +137,15 @@ module.exports = {
             prompt_id           :req.params.prompt_id
         }
 
+        // Lấy thời gian hiện tại cho modified_date
+        let modifiedDate = new Date(); 
+        // Định dạng chuỗi datetime cho MySQL
+        // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
+        let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
+
         var value={
             content             :req.body.content,
-            modified_date       :req.body.modified_date
+            modified_date       :modifiedDatetime
         };
 
         try{
@@ -164,11 +177,15 @@ module.exports = {
         var condition={
             prompt_id         :req.params.prompt_id
         }
+          
+        let modifiedDate = new Date(); 
+        let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
+   
 
         var value={
             fanpage_id      :req.body.fanpage_id,
             active          :req.body.active,
-            modified_date   :req.body.modified_date
+            modified_date   :modifiedDatetime
         };
 
         if (typeof value.active !== 'boolean') {
