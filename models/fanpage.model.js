@@ -14,6 +14,12 @@ module.exports={
         var result  = db.load(`select count(*) as count from ${TABLE} `);
         return result;
     },
+
+    //count all fanpage actived in server
+    countAllFanpageActived:function(){
+        var result  = db.load(`select count(*) as count from ${TABLE} where active = true`);
+        return result;
+    },
     
     //get details fanpage ID
     getOne:function(condition){
