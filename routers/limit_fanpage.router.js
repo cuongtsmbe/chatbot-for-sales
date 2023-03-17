@@ -1,6 +1,6 @@
 const limit_fanpageModel = require("../models/limit_fanpage.model");
 const LINK = require("../util/links.json");
-const { v4: uuidv4 } = require("uuid");
+const { v4: uuidv4, validate: validateUuid } = require("uuid");
 
 module.exports = {
     limitFanpageRouters:function(app){
@@ -37,12 +37,16 @@ module.exports = {
             
         };
         
-        if (typeof value.count !== "number") {
+        if (isNaN(value.count)) {
             // count không phải là kiểu number
             return res.status(400).json({
                 code:41,
                 message:"count must be number"
             });
+        }
+
+        if(!value.description){
+            value.description = "empty...";
         }
 
         try{
@@ -58,6 +62,17 @@ module.exports = {
 
             //insert to Db
             var result=await limit_fanpageModel.add(value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:"Them khong thanh cong"
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:"Them thanh cong"
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -66,16 +81,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:"Them khong thanh cong"
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:"Them thanh cong"
-                })
+       
     },
 
     //update record
@@ -89,17 +95,32 @@ module.exports = {
             description             :req.body.description,           
         };
         
-        if (typeof value.count !== "number") {
+        if (isNaN(value.count) || value.count < 0 ) {
             // count không phải là kiểu number
             return res.status(400).json({
                 code:41,
-                message:"count must be number"
+                message:"count must be number greater than or equal 0."
             });
+        }
+
+        if(!value.description){
+            value.description = "empty...";
         }
 
         try{
             //update to Db
             var result=await limit_fanpageModel.update(condition,value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:"update khong thanh cong"
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:"update thanh cong"
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -108,16 +129,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:"update khong thanh cong"
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:"update thanh cong"
-                })
+     
     },
 
     //delete record by id
@@ -136,6 +148,17 @@ module.exports = {
 
         try{
             var result=await limit_fanpageModel.delete(condition);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:41,
+                        message:`delete ${condition.limit_fanpage_id} not success`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`delete ${condition.limit_fanpage_id} success`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -144,16 +167,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:41,
-                    message:`delete ${condition.limit_fanpage_id} not success`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`delete ${condition.limit_fanpage_id} success`
-                })
+      
     }
     
 }
