@@ -2,7 +2,8 @@ const userModel = require("../models/user.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 const { v4: uuidv4, validate: validateUuid } = require("uuid");
-const {validateUserInput,validateRoleInput}    = require('../util/validation');
+const {validateRoleInput}    = require('../util/validation');
+const crypto=require('crypto');
 
 module.exports = {
     userRouters:function(app){
@@ -62,7 +63,16 @@ module.exports = {
             offset          :config.limitUser*(req.query.page-1),
         };
 
+        if(!condition.status || !condition.phone_number){
+            return res.status(400).json({
+                code    :40,
+                message :"status or phone_number is required."
+            });
+        }      
+
         try{
+            condition.phone_number = `%${condition.phone_number}%`;
+
             var [count,result]=await Promise.all([
                     userModel.countListByStatusAndPhone(condition),
                     userModel.getListByStatusAndPhone(condition)
@@ -117,18 +127,39 @@ module.exports = {
             password        :req.body.password,
             status          :1          
         };
-        
-        //validate user input
-        var validationResult=validateUserInput(value);
-    
-        if ( validationResult !== true) {
+
+         //check input
+         if(!value.user_name || !value.phone_number || !value.address || !value.role_type || !value.email || !value.password){
+            return res.status(400).json({
+                code:40,
+                message:"user_name,phone_number,address,role_type,email,password is required ."
+            });
+        }
+
+
+        //role type phải khác root
+        if( value.role_type === "root"){
             //thong tin khong hợp lệ
             return res.status(400).json({
                 code:40,
-                message:validationResult
+                message:"required role khác root."
             });
+        }
+ 
 
-        } 
+        if(req.user.role_type !== "root"){
+            //validate user(admin) input
+            var validationResult=validateRoleInput(value);
+
+            if ( validationResult !== true) {
+                //thong tin khong hợp lệ
+                return res.status(400).json({
+                    code:40,
+                    message:validationResult
+                });
+            } 
+        }
+       
 
         try{
             //check user name had exist in DB
@@ -141,8 +172,38 @@ module.exports = {
                 });
             }
 
-            //insert to Db
-            var result=await userModel.add(value);
+            //hash password and response
+            crypto.pbkdf2(value.password,process.env.SALT_PASSWORD, 310000,32, 'sha256',async function(err, hashedPassword) {
+                if (err) {
+                    console.log(err);
+                    res.status(500).json({
+                        code:50,
+                        message:"Server error."
+                    });            
+                    return false;
+                }
+    
+                //cover to String hex 
+                hashedPassword=hashedPassword.toString("hex");
+
+                //save password hash
+                value.password = hashedPassword;
+
+                    //insert to Db
+                var result=await userModel.add(value);
+
+                if(result.length==0 || result.affectedRows==0){
+                    return res.status(400).json({
+                            code:42,
+                            message:"Them khong thanh cong"
+                        })
+                }
+                return  res.status(200).json({
+                            status:20,
+                            message:"Them thanh cong"
+                        })
+            }); 
+
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -151,16 +212,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:"Them khong thanh cong"
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:"Them thanh cong"
-                })
+       
         
     },
 
@@ -179,31 +231,92 @@ module.exports = {
                     });
         }
 
-        var value={     
-            user_name       :req.body.user_name,             
+        var value={              
             phone_number    :req.body.phone_number,           
             address         :req.body.address,         
             role_type       :req.body.role_type,         
             email           :req.body.email,        
-            password        :req.body.password,   
-            status          :req.body.status       
+            status          :req.body.status
         };
 
-        //validate user input
-        var validationResult=validateUserInput(value);
-      
-        if ( validationResult !== true) {
+        //check input
+        if(!value.phone_number || !value.address || !value.role_type || !value.email || !value.status){
+            return res.status(400).json({
+                code:40,
+                message:"phone_number,address,role_type,email,status is required ."
+            });
+        }
+
+        //kiem tra status is number 
+        if(isNaN(value.status) || parseInt(value.status)<0 || parseInt(value.status)>2){
+            return res.status(400).json({
+                code:40,
+                message:"status require is number from 0 to 2."
+            });
+        }
+
+        
+         //role type phải khác root
+        if(value.role_type === "root"){
             //thong tin khong hợp lệ
             return res.status(400).json({
-                code:41,
-                message:validationResult
+                code:40,
+                message:"required role khác root."
             });
+        }
+ 
+        //nếu không phải root user thì phải validate
+        if(req.user.role_type !== "root"){
+            //validate user(admin) input
+            var validationResult=validateRoleInput(value);
 
-        } 
+            if ( validationResult !== true) {
+                //thong tin khong hợp lệ
+                return res.status(400).json({
+                    code:40,
+                    message:validationResult
+                });
+            } 
+        }
+
 
         try{
+            
+            var userResult = await userModel.getOne(condition);
+            //check user exist
+            if(userResult.length == 0){
+                return res.status(400).json({
+                    code:41,
+                    message:`${value.user_id} not exist`
+                });
+            }
+
+            userResult=userResult[0];
+
+            //check is update for user root
+            if(userResult.role_type === "root"){
+                //can't update for root user
+                return res.status(400).json({
+                    code:41,
+                    message:`can't update for root user.`
+                });
+            }
+
+
             //update to Db
             var result=await userModel.update(condition,value);
+            
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update ${condition.user_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update ${condition.user_id} thanh cong`
+                    })
+
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -211,16 +324,6 @@ module.exports = {
                     message:"server error "
                 });
         }
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update ${condition.user_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update ${condition.user_id} thanh cong`
-                })
         
     },
 
@@ -244,21 +347,66 @@ module.exports = {
                     });
         }
 
-        //validate role type input 
-        var validateRoleResult=validateRoleInput(value);
-        
-        if(validateRoleResult !== true){
-            //role type khong hop le
+        //role type phải khác root
+        if(value.role_type === "root"){
+            //thong tin khong hợp lệ
             return res.status(400).json({
-                code:41,
-                message:validateRoleResult
+                code:40,
+                message:"required role khác root."
             });
+        }
 
+        //root có thể bỏ qua validateRoleInput
+        if(req.user.role_type !== "root"){
+            //validate role type input 
+            var validateRoleResult=validateRoleInput(value);
+            
+            if(validateRoleResult !== true){
+                //role type khong hop le
+                return res.status(400).json({
+                    code:41,
+                    message:validateRoleResult
+                });
+
+            }
         }
 
         try{
+
+            var userResult = await userModel.getOne(condition);
+            //check user exist
+            if(userResult.length == 0){
+                return res.status(400).json({
+                    code:41,
+                    message:`${value.user_id} not exist`
+                });
+            }
+
+            userResult=userResult[0];
+
+            //check is update for user root
+            if(userResult.role_type === "root"){
+                //can't update for root user
+                return res.status(400).json({
+                    code:41,
+                    message:`can't update for root user.`
+                });
+            }
+
             //update to Db
             var result=await userModel.update(condition,value);
+
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update role ${condition.user_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update role ${condition.user_id} thanh cong`
+                    })
+
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -266,20 +414,9 @@ module.exports = {
                     message:"server error "
                 });
         }
-
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update role ${condition.user_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update role ${condition.user_id} thanh cong`
-                })
     },
 
-    //delete by user id (just change role type to "viewer")
+    //delete by user id
     delete: async function(req,res,next){
         //condition user id
         var condition={
@@ -289,17 +426,59 @@ module.exports = {
             status       : 0,       //0 is deteted
         };
 
+
+        if(req.user.user_id === condition.user_id){
+            //không thể xóa chính mình
+            return  res.status(400).json({
+                code:40,
+                message: `can't delete yourself.`,
+            });
+        }
+
         //UUID validate
         if(validateUuid(condition.user_id) !== true){
             return  res.status(400).json({
-                        code:40,
+                        code:41,
                         message: "Invalid UUID format",
                     });
         }
 
         try{
+
+            var userResult = await userModel.getOne(condition);
+            //check user exist
+            if(userResult.length == 0){
+                return res.status(400).json({
+                    code:42,
+                    message:`${value.user_id} not exist`
+                });
+            }
+
+            userResult=userResult[0];
+
+            //check is delete user root
+            if(userResult.role_type === "root"){
+                //can't delete for root user
+                return res.status(400).json({
+                    code:43,
+                    message:`can't delete root user.`
+                });
+            }
+
+
             //update to Db
             var result=await userModel.update(condition,value);
+
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:41,
+                        message:`delete ${condition.user_id} not success`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`delete ${condition.user_id}  success`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -308,16 +487,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:41,
-                    message:`delete ${condition.user_id} not success`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`delete ${condition.user_id}  success`
-                })
+ 
     }
 
 }
