@@ -18,7 +18,7 @@ module.exports={
             model: "gpt-3.5-turbo",
             messages,
             temperature, //độ đang sinh từ ngẩu nhiên của mô hình
-            max_tokens: 200 //chọn token tối đa cho câu hỏi và câu trả lời
+            max_tokens: 2000 //chọn token tối đa cho câu hỏi và câu trả lời
         });
 
         console.log("---openai response : ---");
