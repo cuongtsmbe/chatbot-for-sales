@@ -17,7 +17,7 @@ app.get("/webhook",facebookUtil.getWebHook);
 app.post('/webhook', facebookUtil.postWebHook);
 
 //Authorization middleware
-authMdw.authorize();
+app.use(authMdw.authorize);
 
 //CLIENT
 require("./routers/_authentication.router").authRouters(app);

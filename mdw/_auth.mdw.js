@@ -13,7 +13,9 @@ module.exports={
         //không có Token có thể vào các đường dẫn
         if(!token && (
                 //login local
-                req_url.includes(LINK.CLIENT.AUTHENTICATION_LOGIN) 
+                    req_url.includes(LINK.CLIENT.AUTHENTICATION_LOGIN) 
+                ||  req_url.includes(LINK.CLIENT.AUTHENTICATION_CREATE_ACCESSTOKEN)
+                ||  req_url.includes(LINK.CLIENT.AUTHENTICATION_CREATE_PASSWORD_HASH) 
         ) ){
             next();
             return ;
@@ -77,11 +79,11 @@ module.exports={
             if(
                 req_url.includes(LINK.CLIENT.AUTHENTICATION_LOGIN)
             ||  req_url.includes(LINK.CLIENT.AUTHENTICATION_CREATE_ACCESSTOKEN)
+            ||  req_url.includes(LINK.CLIENT.AUTHENTICATION_CREATE_PASSWORD_HASH)
             ){
                 next();
             }else{
 
-                console.log(err);
                 return res.status(400).json({
                     code    :41,
                     message :err

@@ -5,6 +5,8 @@
 
         "AUTHENTICATION_CREATE_ACCESSTOKEN" : "/authentication/accesstoken",
 
+        "AUTHENTICATION_CREATE_PASSWORD_HASH"   : "/authentication/create/hash/password",
+
         "CONVERSATION_GET_BY_FANPAGE_AND_SENDER_ID" : "/conversations/fanpage/:fanpage_id/sender/:sender_id",
         
         "BUYER_GET_BY_FANPAGE_ID" : "/buyers/fanpage/:fanpage_id",
