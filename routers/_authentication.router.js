@@ -116,7 +116,7 @@ module.exports = {
 
             //verified resfreshToken 
             const verified = tokenUtil.verifyToken(refreshToken, process.env.TOKEN_SECRET_REFRESHTOKEN);  
-            console.log(verified);
+            
             try{
                 return res.status(200).json(tokenUtil.GetAccessToken(verified));
             }catch(e){
