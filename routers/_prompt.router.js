@@ -85,16 +85,24 @@ module.exports = {
         let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
         let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
 
-
+ 
         var value={
             prompt_id           :uuidv4(),           
             active              :false,   //default is false
             content             :req.body.content,           
-            create_date         :createdDatetime,         
+            created_date        :createdDatetime ,         
             modified_date       :modifiedDatetime,         
-            fanpage_id          :req.body.fanpage_id          
+            fanpage_id          :req.params.fanpage_id          
         };
-        
+
+
+        if(!value.content){
+            //content is empty or undefined,null
+            return res.status(400).json({
+                code:40,
+                message:`content is required.`
+            });
+        }
 
         try{
             //check fanpage id in DB
@@ -109,6 +117,17 @@ module.exports = {
 
             //insert to Db
             var result=await promptModel.add(value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:"Them khong thanh cong"
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:"Them thanh cong"
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -117,17 +136,6 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:"Them khong thanh cong"
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:"Them thanh cong"
-                })
-        
     },
 
     //update content prompt by ID 
@@ -148,9 +156,29 @@ module.exports = {
             modified_date       :modifiedDatetime
         };
 
+        if(!value.content){
+             //content is empty or undefined,null
+             return res.status(400).json({
+                code:40,
+                message:`content is required.`
+            });
+        }
+
         try{
             //update to Db
             var result=await promptModel.update(condition,value);
+
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update content of ${condition.prompt_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update content of ${condition.prompt_id} thanh cong`
+                    })
+
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -159,16 +187,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update content of ${condition.prompt_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update content of ${condition.prompt_id} thanh cong`
-                })
+       
     },
 
     //update active prompt by ID 
@@ -188,7 +207,16 @@ module.exports = {
             modified_date   :modifiedDatetime
         };
 
-        if (typeof value.active !== 'boolean') {
+
+        if(!value.fanpage_id){
+            //check input fanpage id
+                return res.status(400).json({
+                    code:41,
+                    message:"fanpage id is required."
+                });
+        }
+
+        if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
             // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
@@ -196,22 +224,55 @@ module.exports = {
             });
         }
 
+
         try{
 
+            //cover string "true" or "false" to boolean
+            value.active = JSON.parse(String(value.active).toLowerCase());
+
+            //check fanpage id in DB
+            var dataFanpage = await fanpageModel.getOne({fanpage_id:value.fanpage_id});
+
+            if(dataFanpage.length == 0){
+                return res.status(400).json({
+                    code:41,
+                    message:`fanpage ${value.fanpage_id} not exist`
+                });
+            }
+            
             if(value.active === true){
                 //check prompt active by fanpage id
                 var dataPromptActived = await promptModel.getPromptActivedByFanpageID(value);
                 //Exist prompt actived before.
                 if(dataPromptActived.length > 0){
-                    return res.status(400).json({
-                        code:41,
-                        message:`Exist other prompt actived in fanpage ${value.fanpage_id}.`
-                    });
+                    //current prompt different prompt actived 
+                    if(condition.prompt_id !== dataPromptActived[0].prompt_id){
+                        return res.status(400).json({
+                            code:41,
+                            message:`Exist other prompt actived in fanpage ${value.fanpage_id}.`
+                        });
+                    }else{
+                        return res.status(200).json({
+                            code:20,
+                            message:`had actived this prompt for fanpage ${value.fanpage_id}.`
+                        });
+                    }
                 }
             }
             
             //update to Db
             var result=await promptModel.update(condition,value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update active of ${condition.prompt_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update active of ${condition.prompt_id} thanh cong`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -220,16 +281,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update active of ${condition.prompt_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update active of ${condition.prompt_id} thanh cong`
-                })
+      
     },
 
     //delete prompt by id
@@ -248,6 +300,17 @@ module.exports = {
 
         try{
             var result=await promptModel.delete(condition);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:41,
+                        message:`delete prompt ${condition.prompt_id} not success`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`delete prompt ${condition.prompt_id}  success`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -256,16 +319,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:41,
-                    message:`delete prompt ${condition.prompt_id} not success`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`delete prompt ${condition.prompt_id}  success`
-                })
+       
     }
 
     

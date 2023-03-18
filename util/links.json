@@ -29,7 +29,7 @@
 
         "PROMPT_GET_BY_ID"  : "/prompts/:prompt_id",
 
-        "PROMPT_ADD_NEW"    : "/prompts",
+        "PROMPT_ADD_NEW"    : "/prompts/:fanpage_id",
 
         "PROMPT_UPDATE_CONTENT_BY_ID"   : "/prompts/:prompt_id/content",
 
@@ -37,7 +37,7 @@
 
         "PROMPT_DELETE_BY_ID"   : "/prompts/:prompt_id",
 
-        "USER_GET_DETAILS_BY_USER_ID" : "/users/:user_id",
+        "USER_GET_DETAILS_BY_USER_ID" : "/users",
 
         "FANPAGE_GET_BY_STATUS" : "/fanpages/status/:status",
 
