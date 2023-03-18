@@ -1,5 +1,6 @@
 const fanpageModel = require("../models/fanpage.model");
 const userModel = require("../models/user.model");
+const limit_fanpageModel = require("../models/limit_fanpage.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 const { validate: validateUuid } = require("uuid");
@@ -15,7 +16,7 @@ module.exports = {
         app.post(   LINK.ADMIN.FANPAGE_ADD_NEW                              ,this.add);
         app.put(    LINK.ADMIN.FANPAGE_UPDATE_BY_ID                         ,this.update);
         app.put(    LINK.ADMIN.FANPAGE_UPDATE_ACTIVE_BY_ID                  ,this.updateActive);
-        app.delete( LINK.ADMIN.FANPAGE_DELETE_ID                            ,this.delete);
+        app.delete( LINK.ADMIN.FANPAGE_DELETE_BY_ID                         ,this.delete);
     },
 
     //get fanpage by page
@@ -190,6 +191,30 @@ module.exports = {
         } 
 
         try{
+            //cover string "true" or "false" to boolean
+            value.active = JSON.parse(String(value.active).toLowerCase());
+            //get all row in limit
+            var resultLimit=await limit_fanpageModel.getAll();
+
+            if(resultLimit.length == 0 || resultLimit.length > 1){
+                //response if rows limit  > 1 or don't have data
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer for more information .",
+                });
+            }
+
+            //get count all fanpage actived in server
+            var countFanpageActivedInServer = await fanpageModel.countAllFanpageActived();
+
+            //check fanpage active in server had limited 
+            if(value.active == true && countFanpageActivedInServer[0].count >= resultLimit[0].count){
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer for more information .",
+                });
+            }
+
             //check fanpage id in DB
             var dataFanpage = await fanpageModel.getOne({fanpage_id:value.fanpage_id});
 
@@ -213,6 +238,17 @@ module.exports = {
             //insert to DB
             var result=await fanpageModel.add(value);
 
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:44,
+                        message:"Them khong thanh cong"
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:"Them thanh cong"
+                    })
+
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -221,16 +257,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:43,
-                    message:"Them khong thanh cong"
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:"Them thanh cong"
-                })
+       
         
     },
 
@@ -262,6 +289,22 @@ module.exports = {
                 });
         }
 
+        //check active input
+        if(!value.active){
+            return  res.status(400).json({
+                code:40,
+                message: "active is required.",
+            });
+        }
+
+        //kiem tra status is number 
+        if(isNaN(value.status) || parseInt(value.status)<0 || parseInt(value.status)>2){
+            return res.status(400).json({
+                code:40,
+                message:"status require is number from 0 to 2."
+            });
+        }
+
         //validate input value
         var validationResult=validateFanpageInput(value);
     
@@ -275,6 +318,41 @@ module.exports = {
         } 
 
         try{
+            //cover string "true" or "false" to boolean
+            value.active = JSON.parse(String(value.active).toLowerCase());
+            //get all row in limit
+            var resultLimit=await limit_fanpageModel.getAll();
+
+            if(resultLimit.length == 0 || resultLimit.length > 1){
+                //response if rows limit  > 1 or don't have data
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer for more information .",
+                });
+            }
+
+            //get details of fanpage id 
+            var detailsFanpage= await fanpageModel.getOne(condition);
+
+            if(detailsFanpage.length == 0 ){
+                return  res.status(400).json({
+                    code:43,
+                    message: `fanpage ${condition.fanpage_id} not exist.`,
+                });
+            }
+            detailsFanpage = detailsFanpage[0];
+
+            //get count all fanpage actived in server
+            var countFanpageActivedInServer = await fanpageModel.countAllFanpageActived();
+
+            //check fanpage active in server had limited 
+            if(value.active === true && detailsFanpage.active != true && countFanpageActivedInServer[0].count >= resultLimit[0].count){
+                //nếu fanpage muốn active là true và update cho fanpage false và số lượng fanpage active cho phep đã đạt giới hạn (limit) 
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer for more information .",
+                });
+            }
 
             //check user_id exist in DB
             var dataUser = await userModel.getOne({user_id:value.user_id});
@@ -288,6 +366,17 @@ module.exports = {
 
             //update to Db
             var result=await fanpageModel.update(condition,value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update ${condition.fanpage_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update ${condition.fanpage_id} thanh cong`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -295,16 +384,7 @@ module.exports = {
                     message:"server error "
                 });
         }
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update ${condition.fanpage_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update ${condition.fanpage_id} thanh cong`
-                })
+       
         
     },
 
@@ -320,7 +400,7 @@ module.exports = {
         };
 
 
-        if (typeof value.active !== 'boolean') {
+        if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
             // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
@@ -329,8 +409,43 @@ module.exports = {
         }
 
         try{
+            //cover string "true" or "false" to boolean
+            value.active = JSON.parse(String(value.active).toLowerCase());
+            //get all row in limit
+            var resultLimit=await limit_fanpageModel.getAll();
+
+            if(resultLimit.length == 0 || resultLimit.length > 1){
+                //response if rows limit  > 1 or don't have data
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer for more information .",
+                });
+            }
+
+            //get count all fanpage actived in server
+            var countFanpageActivedInServer = await fanpageModel.countAllFanpageActived();
+
+            //check fanpage active in server had limited 
+            if(value.active == true && countFanpageActivedInServer[0].count >= resultLimit[0].count){
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer for more information .",
+                });
+            }
+
             //update to Db
             var result=await fanpageModel.update(condition,value);
+
+            if(result.length == 0 ||  result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update active of ${condition.fanpage_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update active of ${condition.fanpage_id} thanh cong`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -339,16 +454,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update active of ${condition.fanpage_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update active of ${condition.fanpage_id} thanh cong`
-                })
+       
     },
 
 
@@ -367,6 +473,17 @@ module.exports = {
         try{
             //update to Db
             var result=await fanpageModel.update(condition,value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:41,
+                        message:`delete ${condition.fanpage_id} not success`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`delete ${condition.fanpage_id} success`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -375,16 +492,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:41,
-                    message:`delete ${condition.fanpage_id} not success`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`delete ${condition.fanpage_id} success`
-                })
+      
 
     }
 
