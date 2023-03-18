@@ -78,7 +78,7 @@
 
         "FANPAGE_UPDATE_ACTIVE_BY_ID" : "/admin/fanpages/:fanpage_id/active",
 
-        "FANPAGE_DELETE_ID" : "/admin/fanpages/:fanpage_id",
+        "FANPAGE_DELETE_BY_ID" : "/admin/fanpages/:fanpage_id",
 
         "LIMIT_FANPAGE_GET_ALL" : "/admin/limit/fanpage",
 
