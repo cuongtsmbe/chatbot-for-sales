@@ -339,6 +339,15 @@ module.exports = {
             role_type       :req.body.role_type,       //role type need update
         };
 
+
+        //check input role 
+        if(!value.role_type){
+            return res.status(400).json({
+                code:40,
+                message:"role is required."
+            });
+        }
+
         //UUID validate
         if(validateUuid(condition.user_id) !== true){
             return  res.status(400).json({
