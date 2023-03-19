@@ -2,6 +2,7 @@ const orderModel = require("../models/order.model");
 const fanpageModel = require("../models/fanpage.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
+const {isValidMySQLDatetime}    =require("../util/validation");
 const { v4: uuidv4, validate: validateUuid } = require("uuid");
 
 
@@ -28,9 +29,9 @@ module.exports = {
             offset          : config.limitOrder*(req.query.page-1),
         };
 
-        if(!req.query.created_date){
+        if(!condition.created_date){
             //created_date undefined hoặc null ,empty
-            req.query.created_date = null;
+            condition.created_date = null;
         }
 
         try{
@@ -95,10 +96,33 @@ module.exports = {
         };
 
         var condition = {
-            fanpage_id  :value.fanpage_id,
-            user_id     :req.user.user_id
+            user_id     :req.user.user_id,
+            fanpage_id  :value.fanpage_id
         }
-        
+
+        //get create_date is now time
+        if(!value.created_date){
+            value.created_date=modifiedDatetime;
+        }else{
+            //check create_date is format of datetime in mysql
+            if(!isValidMySQLDatetime(value.created_date)){
+                //is not format of datetime
+                return res.status(400).json({
+                    code:40,
+                    message:`create_time is required format datetime.`
+                });
+            }
+        }
+
+        //check value input
+        if(!value.fanpage_id || !value.buyer_id || !value.content ){
+            return res.status(400).json({
+                code:40,
+                message:`fanpage_id,buyer_id,content is required.`
+            });
+        }
+
+
         try{
 
             //check fanpage id in DB
@@ -113,6 +137,17 @@ module.exports = {
 
             //insert to Db
             var result=await orderModel.add(value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:43,
+                        message:"Them khong thanh cong"
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:"Them thanh cong"
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -121,16 +156,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:43,
-                    message:"Them khong thanh cong"
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:"Them thanh cong"
-                })
+      
         
     },
 
@@ -157,9 +183,28 @@ module.exports = {
                     });
         }
 
+        if(!value.content){
+            return res.status(400).json({
+                code:40,
+                message:`content is required.`
+            });
+        }
+
         try{
             //update to Db
             var result=await orderModel.update(condition,value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update data for order ${condition.order_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update data for order ${condition.order_id} thanh cong`
+                    })
+
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -168,16 +213,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update data for order ${condition.order_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update data for order ${condition.order_id} thanh cong`
-                })
+       
     },
 
     //delete order by id
@@ -196,6 +232,17 @@ module.exports = {
 
         try{
             var result=await orderModel.delete(condition);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:41,
+                        message:`delete order ${condition.order_id} not success`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`delete order ${condition.order_id} success`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -204,16 +251,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:41,
-                    message:`delete order ${condition.order_id} not success`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`delete order ${condition.order_id}  success`
-                })
+       
     }
 
 
