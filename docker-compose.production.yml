@@ -14,6 +14,8 @@ services:
       -  bot-network
     env_file:
       - .env
+    depends_on:
+      - db
     working_dir: /usr/src/chatbotZi
     command:
       - /bin/bash
@@ -30,11 +32,11 @@ services:
     env_file:
       - mysql.env
     ports: 
-      - 3306:3306
+      - 3307:3306
     networks:
       - bot-network
     volumes:
-      - ~/data:/var/lib/mysql
+      - ~/chatZi:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
         
 
