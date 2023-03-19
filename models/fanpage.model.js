@@ -28,7 +28,7 @@ module.exports={
 
     //get details condition user ID and fanpage ID 
     getOneByUserIDAndFanpageID:function(condition){
-        var result  = db.load(`select * from ${TABLE} where user_id = ? and fanpage_id = ? `,condition);
+        var result  = db.load(`select * from ${TABLE} where user_id = ? and fanpage_id = ? `,[condition.user_id,condition.fanpage_id]);
         return result;
     },
 
