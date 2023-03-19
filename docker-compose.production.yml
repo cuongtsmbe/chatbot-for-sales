@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
       context: . #address of Dockerfile
     ports:
-      - "8082:8080"
+      - "8083:8080"
     networks:
       -  bot-network
     env_file:
