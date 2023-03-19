@@ -26,7 +26,13 @@ module.exports = {
       } else {
           return 'Các giá trị không được để trống';
       }
-    }
+    },
 
+    //check value have format datetime in mysql
+    isValidMySQLDatetime:function(datetimeString) {
+        const datetimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+        //return boolean
+        return datetimeRegex.test(datetimeString);
+      }
       
 }
