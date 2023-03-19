@@ -1,5 +1,5 @@
 const db = require('../util/db');
-const TABLE="Order";
+const TABLE="\`Order\`";
 
 module.exports={
     //get list orders by fanpage_id
@@ -19,10 +19,10 @@ module.exports={
     countOrderByFanpageIDAndTime: function(condition){
         var result;
         if(condition.created_date === null){
-            result   = db.load(`select * from ${TABLE} where fanpage_id = ?`,
+            result   = db.load(`select count(*) as count from ${TABLE} where fanpage_id = ?`,
             [condition.fanpage_id]);
         }else{
-            result   = db.load(`select * from ${TABLE} where fanpage_id = ? and created_date >= ?`,
+            result   = db.load(`select count(*) as count from ${TABLE} where fanpage_id = ? and created_date >= ?`,
             [condition.fanpage_id,condition.created_date]);
         }
         return result;
