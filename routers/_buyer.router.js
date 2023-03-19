@@ -58,7 +58,18 @@ module.exports = {
             offset          :config.limitBuyer*(req.query.page-1),
         };
 
+        if (String(condition.active).toLowerCase() != "true" && String(condition.active).toLowerCase() != "false") {
+            // active không phải là kiểu boolean
+            return res.status(400).json({
+                code:41,
+                message:"active must be boolean"
+            });
+        }
+            
         try{
+            //cover string "true" or "false" to boolean
+            condition.active = JSON.parse(String(condition.active).toLowerCase());
+
             var [count,result]=await Promise.all([
                 buyerModel.countBuyerByActiveAndFanpageID(condition),
                 buyerModel.getBuyerByActiveAndFanpageID(condition)
