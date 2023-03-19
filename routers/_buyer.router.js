@@ -98,17 +98,31 @@ module.exports = {
                 });
         }
 
-        if (typeof value.active !== 'boolean') {
+        if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
             // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
-                message:"active must be boolean"
+                message:"active must be boolean."
             });
         }
 
         try{
+            //cover string "true" or "false" to boolean
+            value.active = JSON.parse(String(value.active).toLowerCase());
+
             //update to Db
             var result=await buyerModel.update(condition,value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update ${condition.buyer_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update ${condition.buyer_id} thanh cong`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -116,16 +130,7 @@ module.exports = {
                     message:"server error "
                 });
         }
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update ${condition.buyer_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update ${condition.buyer_id} thanh cong`
-                })
+       
 
     }
 }
