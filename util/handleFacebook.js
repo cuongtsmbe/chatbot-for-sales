@@ -7,7 +7,7 @@ const openaiUtil  = require("./openai");
 
 module.exports = {
     //handle Messenger text or file
-    handleMessage:async function(sender_psid, received_message) {
+    handleMessage:async function(sender_psid, WebEvents) {
         let response;
         
         let checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
@@ -25,8 +25,8 @@ module.exports = {
             conversationModel.add({
                 conversation_id :uuidv4(),
                 fanpage_id      :sender_psid,
-                sender_psid     :received_message.recipient.id,
-                message         :received_message.text,
+                sender_psid     :WebEvents.recipient.id,
+                message         :WebEvents.message.text,
                 type            :"Seller",
                 create_date     :createdDatetime
             });
@@ -35,7 +35,7 @@ module.exports = {
         }
 
         let buyer_facebook_id = sender_psid;
-        let fanpage_id = received_message.recipient.id;
+        let fanpage_id = WebEvents.recipient.id;
 
         // Định dạng chuỗi datetime cho MySQL
         // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
@@ -47,7 +47,7 @@ module.exports = {
             conversation_id :uuidv4(),
             fanpage_id      :fanpage_id,
             sender_psid     :buyer_facebook_id,
-            message         :received_message.text,
+            message         :WebEvents.message.text,
             type            :"Buyer",
             create_date     :createdDatetime
         });
@@ -80,12 +80,12 @@ module.exports = {
         }
 
         // Checks if the message contains text
-        if (received_message.text) {  
+        if (WebEvents.message.text) {  
             // Create the payload for a AI response text message, which
             // will be added to the body of our request to the Send API
 
             //thêm "donhang" vào DB. để phòng trg hợp khách hàng ghi sai/không ghi : "LENDON" || lendon
-            if(received_message.text.includes("LENDON")||received_message.text.includes("lendon")||received_message.text.includes("donhang")){
+            if(WebEvents.message.text.includes("LENDON")||WebEvents.message.text.includes("lendon")||WebEvents.message.text.includes("donhang")){
                 
                 let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
                 let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
@@ -94,7 +94,7 @@ module.exports = {
                     order_id            : uuidv4(),           
                     fanpage_id          : fanpage_id,
                     buyer_id            : buyer_id,
-                    content             : received_message.text,
+                    content             : WebEvents.message.text,
                     created_date        : createdDatetime,
                     modified_date       : modifiedDatetime,
                     status              : 1
@@ -106,7 +106,7 @@ module.exports = {
 
             //AI reply
             //BuyerDetails is array 
-            let AIresponse=await openaiUtil.GetAIReplyForBuyer(buyer_facebook_id,BuyerDetails,FanpageDetails,received_message.text);
+            let AIresponse=await openaiUtil.GetAIReplyForBuyer(buyer_facebook_id,BuyerDetails,FanpageDetails,WebEvents.message.text);
             
             //add coversation after AI response
             createdDate = new Date();
@@ -125,7 +125,7 @@ module.exports = {
             console.log(`------user id:${sender_psid}---------`);
             console.log("\n\n");
             console.log("--------Chat----------");
-            console.log(`user: ${received_message.text}`);
+            console.log(`user: ${WebEvents.message.text}`);
             console.log(`AI: ${AIresponse}`);
             console.log("--------###-------\n\n");
             console.log("\n");
@@ -133,10 +133,10 @@ module.exports = {
             response = {
                 "text": AIresponse
             }
-        } else if (received_message.attachments) {
+        } else if (WebEvents.attachments) {
             // Get the URL of the message attachment
             // reponse for image or ..
-            let attachment_url = received_message.attachments[0].payload.url;
+            let attachment_url = WebEvents.attachments[0].payload.url;
             response = {
                 "attachment": {
                 "type": "template",

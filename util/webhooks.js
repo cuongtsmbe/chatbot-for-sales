@@ -43,12 +43,11 @@ module.exports = {
           
             // Get the sender PSID
             let sender_psid = webhook_event.sender.id;
-            console.log('sender PSID: ' + sender_psid);
           
             // Check if the event is a message 
             // pass the event to the appropriate handler function
             if (webhook_event.message) {
-                handleFacebook.handleMessage(sender_psid, webhook_event.message);        
+                handleFacebook.handleMessage(sender_psid, webhook_event);        
             }
             
           });
