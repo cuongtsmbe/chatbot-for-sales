@@ -13,7 +13,7 @@ module.exports = {
     //get buyer by FANPAGE_ID and page
     getByFanpageID:async function(req,res,next){
         //set default page
-        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+        if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
 
@@ -47,7 +47,7 @@ module.exports = {
     //get buyer by ACTIVE,FANPAGE_ID and page
     getByActiveAndFanpageID:async function(req,res,next){
         //set default page
-        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+        if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
 

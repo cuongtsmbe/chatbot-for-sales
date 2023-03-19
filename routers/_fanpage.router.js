@@ -13,7 +13,7 @@ module.exports = {
     //get list fanpage by UserID(of Account login) and status
     getByStatusAndUserID:async function(req,res,next){
         //set default page
-        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+        if(isNaN(req.query.page) || req.query.page<=0 ){
             req.query.page=1;
         }
 
@@ -25,6 +25,15 @@ module.exports = {
         };
 
         try{
+
+            //status not a number in [0;2]
+            if(isNaN(condition.status) || parseInt(condition.status)<0 || parseInt(condition.status)>3){
+                return res.status(400).json({
+                    code:41,
+                    message:"status must be number in [0;2]."
+                });
+            }
+        
             var [count,result]=await Promise.all([
                 fanpageModel.countListByStatusAndUserId(condition),
                 fanpageModel.getListByStatusAndUserId(condition)
@@ -78,8 +87,15 @@ module.exports = {
             active              :req.body.active,       //role type need update
         };
 
+        //check active 
+        if(!value.active){
+            return res.status(400).json({
+                code:40,
+                message:"active is required."
+            });
+        }
 
-        if (typeof value.active !== 'boolean') {
+        if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
             // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
@@ -88,6 +104,8 @@ module.exports = {
         }
 
         try{
+            //cover string "true" or "false" to boolean
+            value.active = JSON.parse(String(value.active).toLowerCase());
 
             //check data of user(account) exist in DB
             var resultGetOne= await fanpageModel.getOneByUserIDAndFanpageID(condition);  
@@ -103,6 +121,17 @@ module.exports = {
             //update to Db
             var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},value);
 
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update active of ${condition.fanpage_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update active of ${condition.fanpage_id} thanh cong`
+                    })
+
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -111,16 +140,7 @@ module.exports = {
                 });
         }
 
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:42,
-                    message:`update active of ${condition.fanpage_id} khong thanh cong`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`update active of ${condition.fanpage_id} thanh cong`
-                })
+      
     },
 
     //delete fanpage by fanpage_id and user id (change status to 0 and active is false) 
@@ -149,6 +169,17 @@ module.exports = {
 
             //update to Db
             var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:41,
+                        message:`delete ${condition.fanpage_id} not success`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`delete ${condition.fanpage_id} success`
+                    })
         }catch(e){
             console.log(e);
             return res.status(500).json({
@@ -156,17 +187,6 @@ module.exports = {
                     message:"server error "
                 });
         }
-
-        if(result.affectedRows==0){
-            return res.status(400).json({
-                    code:41,
-                    message:`delete ${condition.fanpage_id} not success`
-                })
-        }
-        return  res.status(200).json({
-                    status:20,
-                    message:`delete ${condition.fanpage_id} success`
-                })
 
     }
 }

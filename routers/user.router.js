@@ -19,7 +19,7 @@ module.exports = {
     //get user by page
     get:async function(req,res,next){
         //set default page
-        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+        if( isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
 
@@ -52,7 +52,7 @@ module.exports = {
     //get user by condition status(0:deleted,1:normal,2: admin block , 3 all status) and phone number
     getByStatusAndPhone:async function(req,res,next){
         //set default page
-        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+        if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
 
@@ -247,12 +247,20 @@ module.exports = {
             });
         }
 
-        //kiem tra status is number 
-        if(isNaN(value.status) || parseInt(value.status)<0 || parseInt(value.status)>2){
-            return res.status(400).json({
-                code:40,
-                message:"status require is number from 0 to 2."
-            });
+        try{
+            //kiem tra status is number 
+            if(isNaN(value.status) || parseInt(value.status)<0 || parseInt(value.status)>2){
+                return res.status(400).json({
+                    code:40,
+                    message:"status require is number from 0 to 2."
+                });
+            }
+        }catch(e){
+            console.log(e);
+            return res.status(500).json({
+                    code:50,
+                    message:"server error "
+                });
         }
 
         

@@ -18,7 +18,7 @@ module.exports = {
     //get order by fanpage id, time and page 
     getByFanpageIDAndTime:async function(req,res,next){
         //set default page
-        if(req.query.page==undefined || req.query.page<=0 || isNaN(req.query.page)){
+        if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
 
