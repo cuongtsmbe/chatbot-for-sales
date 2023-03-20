@@ -25,7 +25,7 @@ module.exports = {
             conversationModel.add({
                 conversation_id :uuidv4(),
                 fanpage_id      :sender_psid,
-                sender_psid     :WebEvents.recipient.id,
+                sender_id       :WebEvents.recipient.id,
                 message         :WebEvents.message.text,
                 type            :"Seller",
                 create_date     :createdDatetime
