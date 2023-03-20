@@ -9,7 +9,6 @@
 /xem.txt
 # production
 /build
-/mysql
 /test.js
 # misc
 .DS_Store
