@@ -21,7 +21,7 @@ CREATE TABLE `Conversation` (
   `sender_id` varchar(255) NOT NULL,
   `message` text NOT NULL,
   `type` varchar(10) NOT NULL,
-  `create_time` datetime NOT NULL
+  `created_time` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 

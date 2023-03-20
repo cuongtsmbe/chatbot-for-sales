@@ -28,7 +28,7 @@ module.exports = {
                 sender_id       :WebEvents.recipient.id,
                 message         :WebEvents.message.text,
                 type            :"Seller",
-                created_date     :createdDatetime
+                created_time     :createdDatetime
             });
 
             return true;
@@ -39,7 +39,7 @@ module.exports = {
 
         // Định dạng chuỗi datetime cho MySQL
         // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
-        let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
+        let createdDate = new Date(); // Lấy thời gian hiện tại cho created_time
         let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
 
         //add to coversation(user -> fanpage)
@@ -49,7 +49,7 @@ module.exports = {
             sender_id       :buyer_facebook_id,
             message         :WebEvents.message.text,
             type            :"Buyer",
-            created_date     :createdDatetime
+            created_time     :createdDatetime
         });
 
         //get details buyer by fanpage id and facebook sender_psid
@@ -119,7 +119,7 @@ module.exports = {
                 sender_id       :buyer_facebook_id,
                 message         :AIresponse,
                 type            :"Seller",
-                created_date     :createdDatetime
+                created_time     :createdDatetime
             });
 
             console.log(`------user id:${sender_psid}---------`);
