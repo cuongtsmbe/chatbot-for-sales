@@ -43,10 +43,12 @@ services:
     hostname: chatZi-ngnix
     tty: true
     ports:
-      - "82:80"
-      - "444:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./certs/Cloudflare.cert:/etc/nginx/certs/xuongsx.site.crt
+      - ./certs/Cloudflare.key:/etc/nginx/certs/xuongsx.site.key
     depends_on:
       - node-bot
     networks:
