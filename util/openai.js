@@ -8,25 +8,30 @@ module.exports={
 
     //send prompt to openAI and return text(String) result
     generateCompletion: async function(messages,FanpageDetails,temperature=0.7,max_tokens) {
+        try{
+            let configuration = new Configuration({
+                apiKey: FanpageDetails.key_open_ai,
+            });
+            let openai = new OpenAIApi(configuration);
+            
+            let completion = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo",
+                messages,
+                temperature, //độ đang sinh từ ngẩu nhiên của mô hình
+                max_tokens:max_tokens  //chọn token tối đa cho câu hỏi và câu trả lời
+            });
 
-        let configuration = new Configuration({
-            apiKey: FanpageDetails.key_open_ai,
-          });
-          let openai = new OpenAIApi(configuration);
-          
-        let completion = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
-            messages,
-            temperature, //độ đang sinh từ ngẩu nhiên của mô hình
-            max_tokens:max_tokens  //chọn token tối đa cho câu hỏi và câu trả lời
-        });
+            console.log("---openai response : ---");
+            console.log(completion.data.choices[0].message);
+            
+            let reponseAIText = completion.data.choices[0].message.content;
 
-        console.log("---openai response : ---");
-        console.log(completion.data.choices[0].message);
-        
-        let reponseAIText = completion.data.choices[0].message.content;
-
-        return reponseAIText;
+            return reponseAIText;
+        }catch(e){
+            //max token 
+            console.log(e);
+            return " ";
+        }
 
     },
 
@@ -63,7 +68,7 @@ module.exports={
         messages.push({"role": "user", "content": `${textReceivedMessage}.` });
         
         //send buyer to openAI and receive AI reply  
-        let AIReply =await this.generateCompletion(messages,FanpageDetails,0.6,100);
+        let AIReply =await this.generateCompletion(messages,FanpageDetails,0.6,500);
 
         //require summary history and current chat(of AI and buyer)
         this.GetSummaryChats(buyer_facebook_id,buyer,summaryText,textReceivedMessage,AIReply,FanpageDetails);
@@ -76,11 +81,11 @@ module.exports={
         let messages=[];
         if(summaryText === ""){
             messages=[
-                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau  "` }
+                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau bằng đoạn văn nhiều nhất là 100 chữ "` }
             ];
         }else{
             messages=[
-                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau biết : Nội dung cuộc trò chuyện lúc trước là "${summaryText}"` }
+                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau bằng đoạn văn nhiều nhất là 100 chữ biết : Nội dung cuộc trò chuyện lúc trước là "${summaryText}"` }
             ];
         }
         messages.push( {"role": "user", "content": `${textBuyerSend}` });
