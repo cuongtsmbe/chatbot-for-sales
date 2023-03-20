@@ -28,7 +28,7 @@ module.exports = {
                 sender_id       :WebEvents.recipient.id,
                 message         :WebEvents.message.text,
                 type            :"Seller",
-                create_date     :createdDatetime
+                created_date     :createdDatetime
             });
 
             return true;
@@ -49,7 +49,7 @@ module.exports = {
             sender_id       :buyer_facebook_id,
             message         :WebEvents.message.text,
             type            :"Buyer",
-            create_date     :createdDatetime
+            created_date     :createdDatetime
         });
 
         //get details buyer by fanpage id and facebook sender_psid
@@ -119,7 +119,7 @@ module.exports = {
                 sender_id       :buyer_facebook_id,
                 message         :AIresponse,
                 type            :"Seller",
-                create_date     :createdDatetime
+                created_date     :createdDatetime
             });
 
             console.log(`------user id:${sender_psid}---------`);
