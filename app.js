@@ -16,7 +16,10 @@ app.use(bodyParser.json())
 app.get("/webhook",facebookUtil.getWebHook);
 app.post('/webhook', facebookUtil.postWebHook);
 
-
+app.get("/about",function(req,res){
+    res.send("13/3/2023 .Setup chatZi");
+});
+   
 //Authorization middleware
 app.use(authMdw.authorize);
 
@@ -33,9 +36,6 @@ require("./routers/user.router").userRouters(app);
 require("./routers/fanpage.router").fanpageRouters(app);
 require("./routers/limit_fanpage.router").limitFanpageRouters(app);
 
-app.get("/about",function(req,res){
- res.send("13/3/2023 .Setup chatbot");
-});
 
 app.listen(port, () => {
  console.log(` listening on port ${port}!`);
