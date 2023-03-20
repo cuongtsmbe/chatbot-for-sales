@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 module.exports={
 
     //send prompt to openAI and return text(String) result
-    generateCompletion: async function(messages,FanpageDetails,temperature=0.7) {
+    generateCompletion: async function(messages,FanpageDetails,temperature=0.7,max_tokens) {
 
         let configuration = new Configuration({
             apiKey: FanpageDetails.key_open_ai,
@@ -18,7 +18,7 @@ module.exports={
             model: "gpt-3.5-turbo",
             messages,
             temperature, //độ đang sinh từ ngẩu nhiên của mô hình
-            max_tokens:150  //chọn token tối đa cho câu hỏi và câu trả lời
+            max_tokens:max_tokens  //chọn token tối đa cho câu hỏi và câu trả lời
         });
 
         console.log("---openai response : ---");
@@ -53,17 +53,17 @@ module.exports={
         if(buyer.length != 0){
              //buyer đã có tin nhắn với fanpage trước đây(có summary)
             summaryText=buyer[0].summary_text;
-            messages.push({"role": "system", "content": `${PromptResult.content}.Hãy nhớ chỉ trả lời ngắn gọn nhất cho khách hàng. Biết nội dung tóm tắt của bạn và buyer trước đó là : ${summaryText}` });
+            messages.push({"role": "system", "content": `${PromptResult.content}. Biết nội dung tóm tắt của bạn và buyer trước đó là : ${summaryText}` });
         }else{
             //buyer nhắn đến fanpage lần đầu 
-            messages.push({"role": "system", "content": `${PromptResult.content}.Hãy nhớ chỉ trả lời ngắn gọn nhất cho khách hàng.` });
+            messages.push({"role": "system", "content": `${PromptResult.content}.` });
         }
 
         //current messenger buyer send to fanpage 
         messages.push({"role": "user", "content": `${textReceivedMessage}.` });
         
         //send buyer to openAI and receive AI reply  
-        let AIReply =await this.generateCompletion(messages,FanpageDetails,0.6);
+        let AIReply =await this.generateCompletion(messages,FanpageDetails,0.6,100);
 
         //require summary history and current chat(of AI and buyer)
         this.GetSummaryChats(buyer_facebook_id,buyer,summaryText,textReceivedMessage,AIReply,FanpageDetails);
@@ -76,18 +76,18 @@ module.exports={
         let messages=[];
         if(summaryText === ""){
             messages=[
-                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau bằng đoạn văn có 20 chữ biết "` }
+                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau  "` }
             ];
         }else{
             messages=[
-                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau sau bằng đoạn văn có 20 chữ biết : Nội dung cuộc trò chuyện lúc trước là "${summaryText}"` }
+                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau biết : Nội dung cuộc trò chuyện lúc trước là "${summaryText}"` }
             ];
         }
         messages.push( {"role": "user", "content": `${textBuyerSend}` });
         messages.push(  {"role": "assistant", "content": `${AIReply}` });
 
 
-        let AIReplySummary =await this.generateCompletion(messages,FanpageDetails,0.7);
+        let AIReplySummary =await this.generateCompletion(messages,FanpageDetails,0.7,130);
         console.log("\n\n\n---------------sau tóm tắt -----------");
         console.log(AIReplySummary);
         console.log("--------------------------------------\n\n\n\n");
