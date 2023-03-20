@@ -4,7 +4,7 @@ const orderModel = require("../models/order.model");
 const conversationModel = require("../models/conversation.model");
 const { v4: uuidv4 } = require("uuid"); 
 const openaiUtil  = require("./openai");
-
+const request   = require("request");
 module.exports = {
     //handle Messenger text or file
     handleMessage:async function(sender_psid, WebEvents) {
