@@ -53,10 +53,10 @@ module.exports={
         if(buyer.length != 0){
              //buyer đã có tin nhắn với fanpage trước đây(có summary)
             summaryText=buyer[0].summary_text;
-            messages.push({"role": "system", "content": `${PromptResult.content}. Biết nội dung tóm tắt của bạn và buyer trước đó là : ${summaryText}` });
+            messages.push({"role": "system", "content": `${PromptResult.content}.Hãy nhớ chỉ trả lời ngắn gọn nhất cho khách hàng. Biết nội dung tóm tắt của bạn và buyer trước đó là : ${summaryText}` });
         }else{
             //buyer nhắn đến fanpage lần đầu 
-            messages.push({"role": "system", "content": `${PromptResult.content}.` });
+            messages.push({"role": "system", "content": `${PromptResult.content}.Hãy nhớ chỉ trả lời ngắn gọn nhất cho khách hàng.` });
         }
 
         //current messenger buyer send to fanpage 
@@ -76,11 +76,11 @@ module.exports={
         let messages=[];
         if(summaryText === ""){
             messages=[
-                {"role": "system", "content": `Tóm tắt cuộc trò  chuyện sau biết "` }
+                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau bằng đoạn văn có 20 chữ biết "` }
             ];
         }else{
             messages=[
-                {"role": "system", "content": `Tóm tắt cuộc trò  chuyện sau biết : Nội dung cuộc trò chuyện lúc trước là "${summaryText}"` }
+                {"role": "system", "content": `Tóm tắt cuộc trò chuyện sau sau bằng đoạn văn có 20 chữ biết : Nội dung cuộc trò chuyện lúc trước là "${summaryText}"` }
             ];
         }
         messages.push( {"role": "user", "content": `${textBuyerSend}` });
