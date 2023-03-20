@@ -46,7 +46,7 @@ module.exports = {
         conversationModel.add({
             conversation_id :uuidv4(),
             fanpage_id      :fanpage_id,
-            sender_psid     :buyer_facebook_id,
+            sender_id       :buyer_facebook_id,
             message         :WebEvents.message.text,
             type            :"Buyer",
             create_date     :createdDatetime
@@ -116,7 +116,7 @@ module.exports = {
             conversationModel.add({
                 conversation_id :uuidv4(),
                 fanpage_id      :fanpage_id,
-                sender_psid     :buyer_facebook_id,
+                sender_id       :buyer_facebook_id,
                 message         :AIresponse,
                 type            :"Seller",
                 create_date     :createdDatetime
