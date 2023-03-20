@@ -87,7 +87,7 @@ module.exports={
         messages.push(  {"role": "assistant", "content": `${AIReply}` });
 
 
-        let AIReplySummary =await this.generateCompletion(messages,FanpageDetails,0.7,130);
+        let AIReplySummary =await this.generateCompletion(messages,FanpageDetails,0.7,1000);
         console.log("\n\n\n---------------sau tóm tắt -----------");
         console.log(AIReplySummary);
         console.log("--------------------------------------\n\n\n\n");
