@@ -8,8 +8,6 @@ services:
     build:
       dockerfile: Dockerfile
       context: . #address of Dockerfile
-    ports:
-      - "8083:8080"
     networks:
       -  bot-network
     env_file:
@@ -31,8 +29,6 @@ services:
     restart: always
     env_file:
       - mysql.env
-    ports: 
-      - 3307:3306
     networks:
       - bot-network
     volumes:
