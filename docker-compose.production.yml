@@ -38,5 +38,19 @@ services:
     volumes:
       - ~/chatZi:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+  nginx:
+    image: nginx:alpine
+    hostname: chatZi-ngnix
+    tty: true
+    ports:
+      - "82:80"
+      - "444:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+    depends_on:
+      - node-bot
+    networks:
+      - bot-network
         
+
 
