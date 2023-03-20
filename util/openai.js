@@ -18,7 +18,7 @@ module.exports={
             model: "gpt-3.5-turbo",
             messages,
             temperature, //độ đang sinh từ ngẩu nhiên của mô hình
-            max_tokens: 4096 //chọn token tối đa cho câu hỏi và câu trả lời
+            max_tokens:150  //chọn token tối đa cho câu hỏi và câu trả lời
         });
 
         console.log("---openai response : ---");
@@ -84,7 +84,7 @@ module.exports={
             ];
         }
         messages.push( {"role": "user", "content": `${textBuyerSend}` });
-        messages.push(  {"role": "you", "content": `${AIReply}` });
+        messages.push(  {"role": "assistant", "content": `${AIReply}` });
 
 
         let AIReplySummary =await this.generateCompletion(messages,FanpageDetails,0.7);
