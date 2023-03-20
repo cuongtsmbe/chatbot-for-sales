@@ -12,7 +12,7 @@ module.exports = {
         
         let checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
 
-        if(checkFanpage.length > 0 && checkFanpage[0].active === true && checkFanpage[0].status === 1 ){
+        if(checkFanpage.length > 0 && checkFanpage[0].active == true && checkFanpage[0].status == 1 ){
             //chặn(yêu cầu đến openAI) khi AI trong fanpage gửi qua buyer
             return true;
         }
@@ -62,7 +62,7 @@ module.exports = {
         let FanpageDetails = await fanpageModel.getOne({fanpage_id:fanpage_id});
 
         //check fanpage exist in DB 
-        if(FanpageDetails === null || FanpageDetails.length === 0){
+        if(FanpageDetails == null || FanpageDetails.length == 0){
             console.log("Fanpage id khong duoc tim thay trong DB.");
             return false;
         }else{
@@ -75,7 +75,7 @@ module.exports = {
         }
         
         //AI turn off in fanpage or buyer
-        if(FanpageDetails.active === false || (BuyerDetails.length!=0 && BuyerDetails[0].active === false ) ){
+        if(FanpageDetails.active == false || (BuyerDetails.length!=0 && BuyerDetails[0].active == false ) ){
             return false;
         }
 
