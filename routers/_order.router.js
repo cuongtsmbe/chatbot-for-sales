@@ -172,8 +172,24 @@ module.exports = {
 
         var value={
             content             : req.body.content,   
-            modified_date       : modifiedDatetime,   
+            modified_date       : modifiedDatetime,
+            status              : req.body.status   
         };
+
+        try{
+            //kiem tra status is number 
+            if(isNaN(value.status) || parseInt(value.status)<0){
+                return res.status(400).json({
+                        code:40,
+                        message:"status require is number > 0"
+                    });
+            }
+        }catch(e){
+            return res.status(400).json({
+                    code:40,
+                    message:"status require is number > 0"
+                });
+        }
 
         //UUID validate
         if(validateUuid(condition.order_id) !== true){
