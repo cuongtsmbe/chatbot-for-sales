@@ -13,11 +13,6 @@ module.exports = {
             
             let checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
 
-            if(checkFanpage.length > 0 && checkFanpage[0].active == true && checkFanpage[0].status == 1 ){
-                //chặn(yêu cầu đến openAI) khi AI trong fanpage gửi qua buyer
-                return true;
-            }
-
             //người quản trị fanpage gửi qua buyer (khi fanpage đã tắt AI)
             if(checkFanpage.length > 0){
 
@@ -34,7 +29,6 @@ module.exports = {
                         facebook_id :WebEvents.recipient.id,
                         fanpage_id  :sender_psid
                     });
-                    console.log(BuyerDetails);
                     //thực hiện turn on/off nếu buyer có trong hệ thống 
                     if(BuyerDetails.length!=0 && (BuyerDetails[0].active != active_change)){
                     
@@ -45,8 +39,6 @@ module.exports = {
                         let value={     
                             active          : active_change
                         };
-                        console.log("value: ");
-                        console.log(value);
                         //update to Db
                         await buyerModel.update(condition,value);
                     }
@@ -66,6 +58,11 @@ module.exports = {
                     created_time     :createdDatetime
                 });
 
+                return true;
+            }
+
+            if(checkFanpage.length > 0 && checkFanpage[0].active == true && checkFanpage[0].status == 1 ){
+                //chặn(yêu cầu đến openAI) khi AI trong fanpage gửi qua buyer
                 return true;
             }
 
