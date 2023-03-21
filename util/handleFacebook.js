@@ -34,10 +34,10 @@ module.exports = {
                         facebook_id :WebEvents.recipient.id,
                         fanpage_id  :sender_psid
                     });
-
+                    console.log(BuyerDetails);
                     //thực hiện turn on/off nếu buyer có trong hệ thống 
                     if(BuyerDetails.length!=0 && (BuyerDetails[0].active != active_change)){
-
+                    
                         let condition={
                             buyer_id        :BuyerDetails[0].buyer_id
                         }
@@ -45,9 +45,12 @@ module.exports = {
                         let value={     
                             active          : active_change
                         };
+                        console.log("value: ");
+                        console.log(value);
                         //update to Db
                         await buyerModel.update(condition,value);
                     }
+
                 }
 
 
