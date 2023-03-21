@@ -1,10 +1,13 @@
 const mysql = require('mysql');
 const configMysql = require("../config/mysql");
 
-//connect DB
-const  connection = mysql.createConnection(configMysql.json());
-connection.connect();
-
+try{
+    //connect DB
+    const  connection = mysql.createConnection(configMysql.json());
+    connection.connect();
+}catch(e){
+    console.log(e);
+}
 module.exports = {
     load: function(sql,condition) {
         return new Promise(function(resolve, reject) {
