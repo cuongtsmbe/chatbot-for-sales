@@ -10,8 +10,7 @@ const facebookUtil = require("./util/webhooks");
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-
-
+            
 //Add support for GET requests to facebook webhook
 app.get("/webhook",facebookUtil.getWebHook);
 app.post('/webhook', facebookUtil.postWebHook);
@@ -19,7 +18,7 @@ app.post('/webhook', facebookUtil.postWebHook);
 app.get("/about",function(req,res){
     res.send("13/3/2023 .Setup chatZi");
 });
-   
+
 //Authorization middleware
 app.use(authMdw.authorize);
 
