@@ -6,6 +6,7 @@
     "limitOrder"    :5,
     "limitPrompt"   :5,
     "queueCoversation"     : "conversation_queue",
-    "urlRabbitmq"   : "amqp://admin:admin@rabbitmq",
-    "prefetchConsumerRabbitMQ" : 3
+    "prefetchConsumerRabbitMQ" : 3,
+    "maxPoolRabbitMQ" : 10,
+    "minPoolRabbitMQ" : 2
 }
