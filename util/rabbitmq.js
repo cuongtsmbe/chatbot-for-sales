@@ -13,8 +13,8 @@ const factory = {
   },
 };
 const opts = {
-  max: 10,
-  min: 2,   
+  max: config.maxPoolRabbitMQ,
+  min: config.minPoolRabbitMQ,   
   evictionRunIntervalMillis: 1000,//pool sẽ kiểm tra các kết nối đang sử dụng và đóng các kết nối không còn sử dụng sau mỗi giây 
 };
 const pool = createPool(factory, opts);

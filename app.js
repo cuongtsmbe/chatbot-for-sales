@@ -5,12 +5,17 @@ const port = process.env.PORT;
 const bodyParser = require('body-parser');
 const authMdw   = require("./mdw/_auth.mdw");
 const facebookUtil = require("./util/webhooks");
+const rabbitMQ = require('./util/rabbitmq');
+
+
+//create consumer listen queue in rabbitMQ
+rabbitMQ.consumerRabbitMQ();
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-            
+
 //Add support for GET requests to facebook webhook
 app.get("/webhook",facebookUtil.getWebHook);
 app.post('/webhook', facebookUtil.postWebHook);
