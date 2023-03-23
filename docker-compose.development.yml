@@ -49,9 +49,8 @@ services:
       - "15672:15672"
     volumes:
       - ~/rabbitmq_data:/var/lib/rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin
+    env_file:
+      - rabbitmq.env
     networks:
       - bot-network
 

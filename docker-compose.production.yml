@@ -14,6 +14,7 @@ services:
       - .env
     depends_on:
       - db
+      - rabbitmq
     working_dir: /usr/src/chatbotZi
     command:
       - /bin/bash
@@ -34,6 +35,18 @@ services:
     volumes:
       - ~/chatZi:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq-bot
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ~/rabbitmq_data:/var/lib/rabbitmq
+    env_file:
+      - rabbitmq.env
+    networks:
+      - bot-network
   nginx:
     image: nginx:alpine
     hostname: chatZi-ngnix
