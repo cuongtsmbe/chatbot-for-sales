@@ -6,10 +6,13 @@ const bodyParser = require('body-parser');
 const authMdw   = require("./mdw/_auth.mdw");
 const facebookUtil = require("./util/webhooks");
 const rabbitMQ = require('./util/rabbitmq');
+const config = require('./config/default.json');
 
-
-//create consumer listen queue in rabbitMQ
-rabbitMQ.consumerRabbitMQ();
+console.log(`have ${config.consumerRabbitMQNumber} consumer in rabbitMQ`);
+for(let i=0;i<config.consumerRabbitMQNumber;i++){
+    //create consumer listen queue in rabbitMQ
+    rabbitMQ.consumerRabbitMQ();
+}
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
