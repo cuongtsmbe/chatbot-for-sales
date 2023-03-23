@@ -1,14 +1,16 @@
 const fanpageModel = require("../models/fanpage.model");
 const buyerModel = require("../models/buyer.model");
 const orderModel = require("../models/order.model");
-const conversationModel = require("../models/conversation.model");
+const rabbitMQ  = require("./rabbitmq");
 const { v4: uuidv4 } = require("uuid"); 
 const openaiUtil  = require("./openai");
 const request   = require("request");
+
 module.exports = {
     //handle Messenger text or file
     handleMessage:async function(sender_psid, WebEvents) {
         try{
+            
             let response;
             
             let checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
@@ -49,14 +51,17 @@ module.exports = {
                 let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
                 let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
                 //add to coversation when AIresponse
-                conversationModel.add({
-                    conversation_id :uuidv4(),
-                    fanpage_id      :sender_psid,
-                    sender_id       :WebEvents.recipient.id,
-                    message         :WebEvents.message.text,
-                    type            :"Seller",
-                    created_time     :createdDatetime
-                });
+                let obCoversation={
+                        conversation_id :uuidv4(),
+                        fanpage_id      :sender_psid,
+                        sender_id       :WebEvents.recipient.id,
+                        message         :WebEvents.message.text,
+                        type            :"Seller",
+                        created_time     :createdDatetime
+                };
+
+                //cover json to string and send to queue rabbitMQ for add conversation in DB
+                rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
                 return true;
             }
@@ -75,14 +80,15 @@ module.exports = {
             let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
 
             //add to coversation(user -> fanpage)
-            conversationModel.add({
+            let obCoversation={
                 conversation_id :uuidv4(),
                 fanpage_id      :fanpage_id,
                 sender_id       :buyer_facebook_id,
                 message         :WebEvents.message.text,
                 type            :"Buyer",
                 created_time     :createdDatetime
-            });
+            };
+            rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
             //get details buyer by fanpage id and facebook sender_psid
             let BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
@@ -145,14 +151,15 @@ module.exports = {
                 createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
 
                 //add to coversation when AIresponse
-                conversationModel.add({
+                let obCoversation={
                     conversation_id :uuidv4(),
                     fanpage_id      :fanpage_id,
                     sender_id       :buyer_facebook_id,
                     message         :AIresponse,
                     type            :"Seller",
                     created_time     :createdDatetime
-                });
+                };
+                rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
                 console.log(`------user id:${sender_psid}---------`);
                 console.log("\n\n");

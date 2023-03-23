@@ -2,11 +2,13 @@ const conversationModel = require('../models/conversation.model');
 const config = require("../config/default.json");
 const amqp = require('amqplib');
 const createPool = require('generic-pool').createPool;
+require('dotenv').config();
+const urlRabbitmq = `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.RABBITMQ_DEFAULT_PASS}@rabbitmq`;
 
 // tạo connection pool
 const factory = {
   create: async function () {
-    return await amqp.connect(config.urlRabbitmq);
+    return await amqp.connect(urlRabbitmq);
   },
   destroy: function (conn) {
     conn.close();
@@ -18,6 +20,16 @@ const opts = {
   evictionRunIntervalMillis: 1000,//pool sẽ kiểm tra các kết nối đang sử dụng và đóng các kết nối không còn sử dụng sau mỗi giây 
 };
 const pool = createPool(factory, opts);
+
+//listen and console err of pool
+var errPool="";
+pool.on('factoryCreateError', function(err){
+    if(!errPool){
+        errPool=err;
+        console.log("factoryCreateError :", err);
+    }
+  
+})
 
 //giải phóng connect trong pool khi tiến trình nhận "SIGNINT"(Ctrl + C)
 process.on('SIGINT', async () => {
