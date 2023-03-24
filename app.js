@@ -8,9 +8,14 @@ const facebookUtil = require("./util/webhooks");
 const rabbitMQ = require('./util/rabbitmq');
 const config = require('./config/default.json');
 
-console.log(`have ${config.consumerNumberInRabbitMQ} consumer in rabbitMQ`);
+if(config.maxPoolConnectionRabbitMQ<=config.consumerNumberInRabbitMQ){
+    console.log("**Phải đặt maxPoolConnectionRabbitMQ > consumerNumberInRabbitMQ **");
+    console.log("*Nguyên nhân vì có thể consumerNumberInRabbitMQ sẽ có thể giữ connection và không release dẫn đến rabbitmq không hoạt động tốt*");
+}
+
+console.log(`Have ${config.consumerNumberInRabbitMQ} consumer in rabbitMQ`);
+//create consumer listen queue in rabbitMQ
 for(let i=0;i<config.consumerNumberInRabbitMQ;i++){
-    //create consumer listen queue in rabbitMQ
     rabbitMQ.consumerRabbitMQ(i);
 }
 

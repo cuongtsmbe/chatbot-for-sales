@@ -15,7 +15,7 @@ module.exports = {
             
             let checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
 
-            //người quản trị fanpage gửi qua buyer (khi fanpage đã tắt AI)
+            //người quản trị or AI fanpage gửi qua buyer 
             if(checkFanpage.length > 0){
 
                 //khi người quản trị gõ "[on]" hoặc "[off]" thì thực hiện update active AI cho buyer
@@ -50,7 +50,7 @@ module.exports = {
 
                 let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
                 let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
-                //add to coversation when AIresponse
+                //add to coversation when AIresponse or người quản trị gửi đi
                 let obCoversation={
                         conversation_id :uuidv4(),
                         fanpage_id      :sender_psid,
@@ -147,21 +147,6 @@ module.exports = {
                 //BuyerDetails is array 
                 let AIresponse=await openaiUtil.GetAIReplyForBuyer(buyer_facebook_id,BuyerDetails,FanpageDetails,WebEvents.message.text);
                 
-                //add coversation after AI response
-                createdDate = new Date();
-                createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
-
-                //add to coversation when AIresponse
-                let obCoversation={
-                    conversation_id :uuidv4(),
-                    fanpage_id      :fanpage_id,
-                    sender_id       :buyer_facebook_id,
-                    message         :AIresponse,
-                    type            :"Seller",
-                    created_time     :createdDatetime
-                };
-                rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
-
                 console.log(`------user id:${sender_psid}---------`);
                 console.log("\n\n");
                 console.log("--------Chat----------");

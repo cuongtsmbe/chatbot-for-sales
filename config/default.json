@@ -8,7 +8,7 @@
     "queueCoversation"     : "conversation_queue",
     "prefetchConsumerRabbitMQ"  : 0,
     "consumerNumberInRabbitMQ"  : 2,
-    "maxPoolConnectionRabbitMQ" : 2,
+    "maxPoolConnectionRabbitMQ" : 5,
     "minPoolConnectionRabbitMQ" : 1,
     "maxPoolChannelRabbitMQ"    : 10,
     "minPoolChannelRabbitMQ"    : 1
