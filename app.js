@@ -10,7 +10,7 @@ const config = require('./config/default.json');
 
 if(config.maxPoolConnectionRabbitMQ<=config.consumerNumberInRabbitMQ){
     console.log("**Phải đặt maxPoolConnectionRabbitMQ > consumerNumberInRabbitMQ **");
-    console.log("*Nguyên nhân vì có thể consumerNumberInRabbitMQ sẽ có thể giữ connection và không release dẫn đến rabbitmq không hoạt động tốt*");
+    console.log("*Nguyên nhân vì có thể consumer sẽ có thể giữ hết connection và không release dẫn đến rabbitmq không hoạt động*");
 }
 
 console.log(`Have ${config.consumerNumberInRabbitMQ} consumer in rabbitMQ`);
