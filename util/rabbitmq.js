@@ -122,7 +122,6 @@ module.exports = {
                 //create queue with durable:true ,queue sẽ được lưu trữ trên đĩa cứng và không bị mất nếu RabbitMQ server bị sập hoặc khởi động lại.
                 durable: true 
             });
-            console.log("SEND-");
             channel.sendToQueue(config.queueCoversation, Buffer.from(msg), { 
                 //lưu dữ tin nhắn vào đĩa cứng trc khi gửi cho consumer để tránh mất khi rabbitMQ có vấn đề
                 persistent: true 
