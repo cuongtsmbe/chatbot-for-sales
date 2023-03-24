@@ -61,7 +61,7 @@ module.exports = {
                 };
 
                 //cover json to string and send to queue rabbitMQ for add conversation in DB
-                rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
+                await rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
                 return true;
             }
@@ -88,7 +88,7 @@ module.exports = {
                 type            :"Buyer",
                 created_time     :createdDatetime
             };
-            rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
+            await rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
             //get details buyer by fanpage id and facebook sender_psid
             let BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
@@ -159,7 +159,7 @@ module.exports = {
                     type            :"Seller",
                     created_time     :createdDatetime
                 };
-                rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
+                await rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
                 console.log(`------user id:${sender_psid}---------`);
                 console.log("\n\n");
