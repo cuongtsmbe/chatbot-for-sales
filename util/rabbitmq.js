@@ -3,27 +3,60 @@ const config = require("../config/default.json");
 const amqp = require('amqplib');
 const createPool = require('generic-pool').createPool;
 require('dotenv').config();
-const urlRabbitmq = `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.RABBITMQ_DEFAULT_PASS}@rabbitmq`;
+const urlRabbitMQ = `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.RABBITMQ_DEFAULT_PASS}@rabbitmq`;
 
-// tạo connection pool
-const factory = {
-  create: async function () {
-    return await amqp.connect(urlRabbitmq);
-  },
-  destroy: function (conn) {
-    conn.close();
-  },
+const connectionFactory = {
+    create: async function () {
+        const connection =await amqp.connect(urlRabbitMQ);
+        console.log('Created connection');
+        return connection;
+    },
+    destroy: function (connection) {
+        connection.close();
+        console.log('Destroyed connection');
+    },
+    validate: function (connection) {
+        //nếu connection không hợp lệ (ví dụ: đã bị đóng) pool sẽ tự xóa và tạo ra một kết nối mới để thay thế   
+        return connection && connection.isOpen();
+    },
 };
-const opts = {
-  max: config.maxPoolRabbitMQ,
-  min: config.minPoolRabbitMQ,   
-  evictionRunIntervalMillis: 1000,//pool sẽ kiểm tra các kết nối đang sử dụng và đóng các kết nối không còn sử dụng sau mỗi giây 
+
+const channelFactory =  {
+    create: async function () {
+        //khi channel chưa có thì sẽ lấy connection trong Pool và tại channel trên connection đó
+        const connection = await connectionPool.acquire();
+        const channel = await connection.createChannel();
+        connectionPool.release(connection);
+        console.log('Created channel');
+        return channel;
+    },
+    destroy: function (channel) {
+        channel.close();
+        console.log('Destroyed channel');
+    },
+    validate: function (channel) {
+        //nếu channel không hợp lệ (ví dụ: đã bị đóng) pool sẽ tự xóa channel và tạo ra channel mới để thay thế 
+        return channel && channel.isOpen();
+    }
 };
-const pool = createPool(factory, opts);
+
+//create connect pool rabbitMQ
+const connectionPool = createPool(connectionFactory, {
+    max: config.maxPoolConnectionRabbitMQ,
+    min: config.minPoolConnectionRabbitMQ,
+    idleTimeoutMillis:10000
+});
+
+//create channel pool rabbitMQ
+const channelPool = createPool(channelFactory,{
+    max: config.maxPoolChannelRabbitMQ,
+    min: config.minPoolChannelRabbitMQ, 
+});
+
 
 //listen and console err of pool
 var errPool="";
-pool.on('factoryCreateError', function(err){
+connectionPool.on('factoryCreateError', function(err){
     if(!errPool){
         errPool=err;
         console.log("factoryCreateError :", err);
@@ -31,18 +64,18 @@ pool.on('factoryCreateError', function(err){
   
 })
 
-//giải phóng connect trong pool khi tiến trình nhận "SIGNINT"(Ctrl + C)
-process.on('SIGINT', async () => {
-    await pool.drain();
-    await pool.clear();
+//giải phóng connect and channel trong pool khi tiến trình nhận "SIGNINT"(Ctrl + C)
+process.on('SIGINT',() => {
+    channelPool.drain().then(() => channelPool.clear());
+    connectionPool.drain().then(() => connectionPool.clear());
 });
 
 module.exports = {
     //create consumer listen queue of rabbitMQ and resolve
-    consumerRabbitMQ: async function () {
+    consumerRabbitMQ: async function (IDConsumer) {
         try{
-            const conn = await pool.acquire();
-            const channel = await conn.createChannel();
+            //lấy channel từ pool channel
+            const channel = await channelPool.acquire();
             await channel.assertQueue(config.queueCoversation, { 
                 // sử dụng cùng một cấu hình với producer,đảm bảo tính bền vững và đáng tin cậy của hệ thống
                 durable: true 
@@ -54,7 +87,7 @@ module.exports = {
                 async (msg) => {
                     try{
                         // xử lý tin nhắn
-                        console.log(`Received message: ${msg.content.toString()}`);
+                        console.log(`ID : ${IDConsumer} - received message: ${msg.content.toString()}`);
                         // Thực hiện truy vấn them conversation vao MySQL
                         conversationModel.add(JSON.parse(msg.content.toString())).then(result => {
                             //thêm data conversation vào DB thành công 
@@ -62,8 +95,9 @@ module.exports = {
                                 channel.ack(msg);
                             }
                         });
+                     
                     }catch(e){
-                        console.log("-Error conversationModel.add tai rabbitmq.js");
+                        console.log("-Error conversationModel.add method at file rabbitmq.js");
                     }
                 },
                 { 
@@ -72,40 +106,33 @@ module.exports = {
             );
             //đóng channel khi tiến trình nhận "SIGNINT"(Ctrl + C)
             process.on('SIGINT', () => {
-                channel.close();
+                channelPool.release(channel);
             });
         }catch(e){
-            console.log(e);
+            console.error('Error occurred producerRabbitMQ to queue:', e);
+            channelPool.drain().then(() => channelPool.clear());
         }
     },
     
     //send msg to rabbitMQ
     producerRabbitMQ:async function(msg){
-        const conn = await pool.acquire();
-        const channel = await conn.createChannel();
-        await channel.assertQueue(config.queueCoversation, { 
-            //create queue with durable:true ,queuesẽ được lưu trữ trên đĩa cứng và không bị mất nếu RabbitMQ server bị sập hoặc khởi động lại.
-            durable: true 
-        });
-        
         try {
-            const sent = channel.sendToQueue(config.queueCoversation, Buffer.from(msg), { 
+            //lấy channel từ pool channel
+            const channel = await channelPool.acquire();
+            await channel.assertQueue(config.queueCoversation, { 
+                //create queue with durable:true ,queue sẽ được lưu trữ trên đĩa cứng và không bị mất nếu RabbitMQ server bị sập hoặc khởi động lại.
+                durable: true 
+            });
+        
+            channel.sendToQueue(config.queueCoversation, Buffer.from(msg), { 
                 //lưu dữ tin nhắn vào đĩa cứng trc khi gửi cho consumer để tránh mất khi rabbitMQ có vấn đề
                 persistent: true 
             });
-            //khi gửi KHÔNG thành công thì yêu cầu gửi lại
-            if (!sent) {
-                await pool.release(channel);
-                await sendMessages(msg);
-                return;
-            }
-         
+
+            channelPool.release(channel);
         }catch(e){
-            console.log(e);
-        }finally {
-            //trả lại kết nối cho pool và đóng channel
-            channel.close();
-            await pool.release(conn);
+            console.error('Error occurred producerRabbitMQ to queue:', e);
+            channelPool.drain().then(() => channelPool.clear());
         }
 
     }

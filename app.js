@@ -8,10 +8,10 @@ const facebookUtil = require("./util/webhooks");
 const rabbitMQ = require('./util/rabbitmq');
 const config = require('./config/default.json');
 
-console.log(`have ${config.consumerRabbitMQNumber} consumer in rabbitMQ`);
-for(let i=0;i<config.consumerRabbitMQNumber;i++){
+console.log(`have ${config.consumerNumberInRabbitMQ} consumer in rabbitMQ`);
+for(let i=0;i<config.consumerNumberInRabbitMQ;i++){
     //create consumer listen queue in rabbitMQ
-    rabbitMQ.consumerRabbitMQ();
+    rabbitMQ.consumerRabbitMQ(i);
 }
 
 // parse application/x-www-form-urlencoded

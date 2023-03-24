@@ -6,8 +6,10 @@
     "limitOrder"    :5,
     "limitPrompt"   :5,
     "queueCoversation"     : "conversation_queue",
-    "prefetchConsumerRabbitMQ" : 3,
-    "maxPoolRabbitMQ" : 10,
-    "minPoolRabbitMQ" : 2,
-    "consumerRabbitMQNumber"  : 2
+    "prefetchConsumerRabbitMQ"  : 0,
+    "consumerNumberInRabbitMQ"  : 2,
+    "maxPoolConnectionRabbitMQ" : 2,
+    "minPoolConnectionRabbitMQ" : 1,
+    "maxPoolChannelRabbitMQ"    : 10,
+    "minPoolChannelRabbitMQ"    : 1
 }
