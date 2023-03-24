@@ -125,8 +125,7 @@ module.exports = {
             console.log("SEND-");
             channel.sendToQueue(config.queueCoversation, Buffer.from(msg), { 
                 //lưu dữ tin nhắn vào đĩa cứng trc khi gửi cho consumer để tránh mất khi rabbitMQ có vấn đề
-                persistent: true ,
-                expiration: 100000 //message không được xử lý trong khoảng thời gian này, nó sẽ bị xóa khỏi queue.
+                persistent: true 
             });
 
             channelPool.release(channel);
