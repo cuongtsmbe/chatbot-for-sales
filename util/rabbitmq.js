@@ -26,7 +26,6 @@ const channelFactory =  {
         //khi channel chưa có thì sẽ lấy connection trong Pool và tại channel trên connection đó
         const connection = await connectionPool.acquire();
         const channel = await connection.createChannel();
-        connectionPool.release(connection);
         console.log('Created channel');
         return channel;
     },
