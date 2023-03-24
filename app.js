@@ -8,21 +8,23 @@ const facebookUtil = require("./util/webhooks");
 const rabbitMQ = require('./util/rabbitmq');
 const config = require('./config/default.json');
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+// parse application/json
+app.use(bodyParser.json())
+
+
 if(config.maxPoolConnectionRabbitMQ<=config.consumerNumberInRabbitMQ){
     console.log("**Phải đặt maxPoolConnectionRabbitMQ > consumerNumberInRabbitMQ **");
     console.log("*Nguyên nhân vì có thể consumer sẽ có thể giữ hết connection và không release dẫn đến rabbitmq không hoạt động*");
 }
+
 
 console.log(`Have ${config.consumerNumberInRabbitMQ} consumer in rabbitMQ`);
 //create consumer listen queue in rabbitMQ
 for(let i=0;i<config.consumerNumberInRabbitMQ;i++){
     rabbitMQ.consumerRabbitMQ(i);
 }
-
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-// parse application/json
-app.use(bodyParser.json())
 
 //Add support for GET requests to facebook webhook
 app.get("/webhook",facebookUtil.getWebHook);
