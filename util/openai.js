@@ -111,9 +111,11 @@ module.exports={
                 const dataInfo=handleFacebook.getFacebookUserInfo(FanpageDetails.key_fanpage,buyer_facebook_psid);
                 let profile_name="khong lay duoc ten.";
                 let profile_pic="khong lay duoc image";
+
                 //get time for add new buyer
                 let currentTime = new Date();
                     currentTime = currentTime.toISOString();// cover format ISO 8601 for mysql
+
                 if(dataInfo!=null){
                     try{
                         profile_name = dataInfo.first_name+dataInfo.last_name;
@@ -122,6 +124,7 @@ module.exports={
                         console.log(e);
                     }
                 }
+
                 //add buyer to DB
                 await buyerModel.add({
                     buyer_id    :uuidv4(),
@@ -133,7 +136,10 @@ module.exports={
                     summary_text:AIReplySummary,
                     modified_user_date : currentTime
                 });
+
             }else{
+
+                //get current date and dbdate 
                 const dbDate = new Date(buyer[0].modified_user_date);
                 const currentDate = new Date();
                 const diffTime = Math.abs(currentDate - dbDate);//khoảng cách thời gian giữa hai ngày tính bằng milisecond
@@ -141,8 +147,10 @@ module.exports={
                
                 //if diffDays large than day in config then check and update profile for buyer
                 if(diffDays > config.daysNumberCheckAndUpdateProfileBuyer){
+                    
                     //try-catch when error by dataInfo then continue update summary
                     try{
+
                         //get profile facebook by psid
                         const dataInfo=handleFacebook.getFacebookUserInfo(FanpageDetails.key_fanpage,buyer_facebook_psid);
                         let profile_name="khong lay duoc ten.";
@@ -155,7 +163,9 @@ module.exports={
 
                         //if picture or name different then update
                         if(buyer[0].profile_name !== profile_name || buyer[0].profile_pic !== profile_pic){
+
                             let modified_user_date = currentDate.toISOString();// cover format ISO 8601 for mysql
+                            
                             //update profile
                             await buyerModel.update({
                                 buyer_id    :buyer[0].buyer_id
@@ -164,7 +174,9 @@ module.exports={
                                 profile_pic,
                                 modified_user_date
                             });
+
                         }
+
                     }catch(e){
                         console.log(e);
                     }
