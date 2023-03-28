@@ -5,12 +5,13 @@ use chatZi;
 
 CREATE TABLE `Buyer` (
   `buyer_id` varchar(255) NOT NULL,
-  `profile_name` varchar(255) NOT NULL,
-  `profile_pic` varchar(255) NOT NULL,
   `facebook_id` varchar(255) NOT NULL,
   `fanpage_id` varchar(255) NOT NULL,
+  `profile_name` varchar(255) NOT NULL,
+  `profile_pic` varchar(255) NOT NULL,
   `active` tinyint(1) NOT NULL,
-  `summary_text` text NOT NULL
+  `summary_text` text NOT NULL,
+  `modified_user_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
@@ -36,19 +37,6 @@ CREATE TABLE `Fanpage` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
-
-INSERT INTO `Fanpage` (`fanpage_id`, `key_fanpage`, `key_open_ai`, `name`, `active`, `user_id`, `payment_due_date`, `status`) VALUES
-('1', '987644', '159335', 'TQG', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 0),
-('100000321516', 'updatenaow', 'update noew', 'TQG', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 0),
-('1000003215165', 'k54d8dsf3dsf82ww4fg8hj5dfajhukiRyenkoqhIlPP,lspskssloaKKuusa', 'Kueasdnk009ekmlkdsfnsd', 'ban hang online', 1, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 1),
-('134', 'k54d8dsf3dsf82ww4fg8hj5dfajhukiRyenkoqhIlPP,lspskssloaKKuusa', 'Kueasdnk009ekmlkdsfnsd', 'ban hang online', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 1),
-('134s', 'k54d8dsf3dsf82ww4fg8hj5dfajhukiRyenkoqhIlPP,lspskssloaKKuusa', 'Kueasdnk009ekmlkdsfnsd', 'ban hang online', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 1),
-('1654', 'as', 'as', 'TQG', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 2),
-('1654654', 'k54d8dsf3dsf82ww4fg8hj5dfajhukiRyenkoqhIlPP,lspskssloaKKuusa', 'Kueasdnk009ekmlkdsfnsd', 'ban hang online', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 1),
-('16546546687', 'k54d8dsf3dsf82ww4fg8hj5dfajhukiRyenkoqhIlPP,lspskssloaKKuusa', 'Kueasdnk009ekmlkdsfnsd', 'ban hang online', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 1),
-('165465466878', 'k54d8dsf3dsf82ww4fg8hj5dfajhukiRyenkoqhIlPP,lspskssloaKKuusa', 'Kueasdnk009ekmlkdsfnsd', 'ban hang online', 1, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 1),
-('2', '55555', '3444', 'TQG', 0, '22cff419-2d3b-4204-b077-45b4f119a3c3', '2023-10-02', 2);
-
 CREATE TABLE `Limit_fanpage` (
   `limit_fanpage_id` varchar(255) NOT NULL,
   `count` int(3) NOT NULL,
@@ -72,13 +60,6 @@ CREATE TABLE `Order` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
-INSERT INTO `Order` (`order_id`, `fanpage_id`, `buyer_id`, `content`, `created_date`, `modified_date`, `status`) VALUES
-('075ed19d-c4dd-4da0-8077-96ec469d948b', '100000321516', '32154', '[donhang] 3 quan ngan', '2023-03-19 17:27:30', '2023-03-19 10:35:49', 1),
-('2104c5e1-ca31-4278-bc29-2c268b518add', '100000321516', '32154', '[donhang] 12 ao thun', '2023-03-19 10:30:45', '2023-03-19 10:30:45', 1),
-('70319f88-ad94-4a02-b8b1-adc545e676ec', '100000321516', '32154', '[donhang] 3 quan ngan', '2023-03-19 10:34:02', '2023-03-19 10:34:02', 1),
-('d8f20e3b-f062-4c31-bc9e-cd0333c8b4d4', '100000321516', '32154', '[donhang] 3 quan ngan', '2023-03-19 10:35:10', '2023-03-19 10:35:10', 1);
-
-
 CREATE TABLE `Prompt` (
   `prompt_id` varchar(255) NOT NULL,
   `active` tinyint(1) NOT NULL,
@@ -88,9 +69,6 @@ CREATE TABLE `Prompt` (
   `fanpage_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-
-INSERT INTO `Prompt` (`prompt_id`, `active`, `content`, `created_date`, `modified_date`, `fanpage_id`) VALUES
-('05f52ce2-d754-43a4-9ea8-1865becf2c73', 0, '\"prompt add value\"', '2023-03-18 16:03:22', '2023-03-18 16:43:02', '100000321516');
 
 
 CREATE TABLE `User` (
@@ -112,12 +90,12 @@ INSERT INTO `User` (`user_id`, `user_name`, `phone_number`, `address`, `role_typ
 
 
 ALTER TABLE `Buyer`
-ADD PRIMARY KEY (`buyer_id`),
-ADD KEY `fanpage_id` (`fanpage_id`);
+  ADD PRIMARY KEY (`buyer_id`),
+  ADD KEY `fanpage_id` (`fanpage_id`);
 
 ALTER TABLE `Conversation`
-ADD PRIMARY KEY (`conversation_id`),
-ADD KEY `fanpage_id` (`fanpage_id`);
+  ADD PRIMARY KEY (`conversation_id`),
+  ADD KEY `fanpage_id` (`fanpage_id`);
 
 ALTER TABLE `Fanpage`
   ADD PRIMARY KEY (`fanpage_id`),
@@ -134,7 +112,7 @@ ALTER TABLE `Prompt`
   ADD PRIMARY KEY (`prompt_id`),
   ADD KEY `fanpage_id` (`fanpage_id`);
 
-  ALTER TABLE `User`
+ALTER TABLE `User`
   ADD PRIMARY KEY (`user_id`);
 
 ALTER TABLE `Buyer`
