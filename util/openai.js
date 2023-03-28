@@ -165,7 +165,7 @@ module.exports={
                         if(buyer[0].profile_name !== profile_name || buyer[0].profile_pic !== profile_pic){
 
                             let modified_user_date = currentDate.toISOString();// cover format ISO 8601 for mysql
-                            
+
                             //update profile
                             await buyerModel.update({
                                 buyer_id    :buyer[0].buyer_id
@@ -180,6 +180,7 @@ module.exports={
                     }catch(e){
                         console.log(e);
                     }
+                    
                 }
 
                 //update summary for buyer
