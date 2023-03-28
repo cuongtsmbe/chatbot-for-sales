@@ -19,7 +19,7 @@ module.exports = {
 
             if(dataInfo!=null){
                 try{
-                    profile_name = dataInfo.first_name+dataInfo.last_name;
+                    profile_name = dataInfo.first_name+" "+dataInfo.last_name;
                     profile_pic=dataInfo.profile_pic;
                 }catch(e){
                     console.log(e);
