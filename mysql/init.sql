@@ -5,15 +5,14 @@ use chatZi;
 
 CREATE TABLE `Buyer` (
   `buyer_id` varchar(255) NOT NULL,
+  `profile_name` varchar(255) NOT NULL,
+  `profile_pic` varchar(255) NOT NULL,
   `facebook_id` varchar(255) NOT NULL,
   `fanpage_id` varchar(255) NOT NULL,
   `active` tinyint(1) NOT NULL,
   `summary_text` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO `Buyer` (`buyer_id`, `facebook_id`, `fanpage_id`, `active`, `summary_text`) VALUES
-('22cff419-2d3b-4204-b077-45b4f119a3c7', '3215643513', '16546546687', 0, 'gia su ban la chat'),
-('22cff419-2d3b-4204-b077-45b4f119a3f3', '3215643512', '16546546687', 1, 'gia su ban la chat');
 
 CREATE TABLE `Conversation` (
   `conversation_id` varchar(255) NOT NULL,

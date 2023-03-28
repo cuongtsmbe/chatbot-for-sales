@@ -57,7 +57,7 @@ module.exports = {
                         sender_id       :WebEvents.recipient.id,
                         message         :WebEvents.message.text,
                         type            :"Seller",
-                        created_time     :createdDatetime
+                        created_time    :createdDatetime
                 };
                
                 //cover json to string and send to queue rabbitMQ for add conversation in DB
@@ -71,7 +71,7 @@ module.exports = {
                 return true;
             }
 
-            let buyer_facebook_id = sender_psid;
+            let buyer_facebook_psid = sender_psid;
             let fanpage_id = WebEvents.recipient.id;
 
             // Định dạng chuỗi datetime cho MySQL
@@ -83,17 +83,17 @@ module.exports = {
             let obCoversation={
                 conversation_id :uuidv4(),
                 fanpage_id      :fanpage_id,
-                sender_id       :buyer_facebook_id,
+                sender_id       :buyer_facebook_psid,
                 message         :WebEvents.message.text,
                 type            :"Buyer",
-                created_time     :createdDatetime
+                created_time    :createdDatetime
             };
  
             rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
             //get details buyer by fanpage id and facebook sender_psid
             let BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
-                facebook_id :buyer_facebook_id,
+                facebook_id :buyer_facebook_psid,
                 fanpage_id  :fanpage_id
             });
             
@@ -145,7 +145,7 @@ module.exports = {
 
                 //AI reply
                 //BuyerDetails is array 
-                let AIresponse=await openaiUtil.GetAIReplyForBuyer(buyer_facebook_id,BuyerDetails,FanpageDetails,WebEvents.message.text);
+                let AIresponse=await openaiUtil.GetAIReplyForBuyer(buyer_facebook_psid,BuyerDetails,FanpageDetails,WebEvents.message.text);
                 
                 console.log(`------user id:${sender_psid}---------`);
                 console.log("\n\n");
@@ -209,5 +209,32 @@ module.exports = {
             console.error("Unable to send message:" + err);
         }
         }); 
+    },
+
+    //lay thong tin user(first_name,last_name,profile_pic) tu psid facebook and page_access_token 
+    //page_accesstoken is key fanpage
+    getFacebookUserInfo:async function(PAGE_ACCESS_TOKEN,PSID){
+        const options = {
+            url: `https://graph.facebook.com/${PSID}?fields=first_name,last_name,profile_pic&access_token=${PAGE_ACCESS_TOKEN}`,
+            method: 'GET'
+        };
+        let data=null;
+        data = await this.getProfileData(options);
+        return data;
+    },
+
+    //promise get profile facebook user from options
+    getProfileData :function(options){
+        return new Promise((resolve, reject) => {
+            request(options, (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                    const data = JSON.parse(body);
+                    resolve(data);
+                } else {
+                    reject(null);
+                }
+            });
+        });
     }
+
 }

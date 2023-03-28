@@ -3,6 +3,7 @@ require('dotenv').config();
 const promptModel = require("../models/prompt.model");
 const buyerModel  = require("../models/buyer.model");
 const { v4: uuidv4 } = require("uuid"); 
+const handleFacebook = require('./handleFacebook');
 
 module.exports={
 
@@ -36,7 +37,7 @@ module.exports={
     },
 
     //get AI reply for question buyer(buyer) (based on summarized chats history ) 
-    GetAIReplyForBuyer: async function(buyer_facebook_id,buyer,FanpageDetails,textReceivedMessage){
+    GetAIReplyForBuyer: async function(buyer_facebook_psid,buyer,FanpageDetails,textReceivedMessage){
         //get prompt by fanpage_id
         let PromptResult = await promptModel.getPromptActivedByFanpageID({
             fanpage_id:FanpageDetails.fanpage_id,
@@ -71,13 +72,13 @@ module.exports={
         let AIReply =await this.generateCompletion(messages,FanpageDetails,0.6,500);
 
         //require summary history and current chat(of AI and buyer)
-        this.GetSummaryChats(buyer_facebook_id,buyer,summaryText,textReceivedMessage,AIReply,FanpageDetails);
+        this.GetSummaryChats(buyer_facebook_psid,buyer,summaryText,textReceivedMessage,AIReply,FanpageDetails);
         
         return AIReply;
     },
 
     //get summary chats of buyer from openAI
-    GetSummaryChats: async function(buyer_facebook_id,buyer,summaryText,textBuyerSend,AIReply,FanpageDetails) {
+    GetSummaryChats: async function(buyer_facebook_psid,buyer,summaryText,textBuyerSend,AIReply,FanpageDetails) {
         let messages=[];
         if(summaryText === ""){
             messages=[
@@ -99,10 +100,20 @@ module.exports={
 
         //add/update summary to DB
         if(buyer.length==0){
+            //get profile facebook by psid
+            let dataInfo=handleFacebook.getFacebookUserInfo(FanpageDetails.key_fanpage,buyer_facebook_psid);
+            let profile_name="khong lay duoc ten.";
+            let profile_pic="khong lay duoc image";
+            if(dataInfo!=null){
+                profile_name = dataInfo.first_name+dataInfo.last_name;
+                profile_pic=dataInfo.profile_pic;
+            }
             //add buyer to DB
             await buyerModel.add({
                 buyer_id    :uuidv4(),
-                facebook_id :buyer_facebook_id,
+                profile_name:profile_name,
+                profile_pic :profile_pic,
+                facebook_id :buyer_facebook_psid,
                 fanpage_id  :FanpageDetails.fanpage_id,
                 active      :true,
                 summary_text:AIReplySummary
