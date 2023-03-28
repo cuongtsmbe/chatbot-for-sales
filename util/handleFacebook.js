@@ -214,13 +214,18 @@ module.exports = {
     //lay thong tin user(first_name,last_name,profile_pic) tu psid facebook and page_access_token 
     //page_accesstoken is key fanpage
     getFacebookUserInfo:async function(PAGE_ACCESS_TOKEN,PSID){
-        const options = {
-            url: `https://graph.facebook.com/${PSID}?fields=first_name,last_name,profile_pic&access_token=${PAGE_ACCESS_TOKEN}`,
-            method: 'GET'
-        };
-        let data=null;
-        data = await this.getProfileData(options);
-        return data;
+        try{
+            const options = {
+                url: `https://graph.facebook.com/${PSID}?fields=first_name,last_name,profile_pic&access_token=${PAGE_ACCESS_TOKEN}`,
+                method: 'GET'
+            };
+            let data=null;
+            data = await this.getProfileData(options);
+            return data;
+        }catch(e){
+            console.log(e);
+            return null;
+        }
     },
 
     //promise get profile facebook user from options

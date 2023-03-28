@@ -11,5 +11,6 @@
     "maxPoolConnectionRabbitMQ" : 5,
     "minPoolConnectionRabbitMQ" : 1,
     "maxPoolChannelRabbitMQ"    : 10,
-    "minPoolChannelRabbitMQ"    : 1
+    "minPoolChannelRabbitMQ"    : 1,
+    "daysNumberCheckAndUpdateProfileBuyer" : 5
 }
