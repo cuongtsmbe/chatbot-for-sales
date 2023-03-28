@@ -60,7 +60,7 @@ module.exports = {
                 let profile_pic="khong lay duoc image";
 
                 if(dataInfo!=null){
-                        profile_name = dataInfo.first_name+dataInfo.last_name;
+                        profile_name = dataInfo.first_name+" "+dataInfo.last_name;
                         profile_pic=dataInfo.profile_pic;
                 }
 
