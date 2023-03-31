@@ -3,6 +3,7 @@ const config = require("../config/default.json");
 const amqp = require('amqplib');
 const createPool = require('generic-pool').createPool;
 require('dotenv').config();
+const buyerUtil = require("./buyer");
 const urlRabbitMQ = `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.RABBITMQ_DEFAULT_PASS}@rabbitmq`;
 
 const connectionFactory = {
@@ -87,17 +88,32 @@ module.exports = {
                     try{
                         // xử lý tin nhắn
                         console.log(`ID : ${IDConsumer} - received message: ${msg.content.toString()}`);
-                        // Thực hiện truy vấn them conversation vao MySQL
-                        conversationModel.add(JSON.parse(msg.content.toString())).then(result => {
-                            //thêm data conversation vào DB thành công 
-                            if(result.length!=0){
-                                channel.ack(msg);
-                            }
-                        });
-                     
+
+                        const value = JSON.parse(msg.content.toString());
+
+                        if(value.type == "add"){ 
+                            //add new buyer
+                            await  buyerUtil.addNewBuyer(
+                                value.FanpageDetails,
+                                value.buyer_facebook_psid,
+                                value.AIReplySummary
+                            );
+                        }
+
+                        if(value.type == "update"){                      
+                            //update buyer info
+                            await  buyerUtil.updateFacebookUserInfo(
+                                value.buyer,
+                                value.FanpageDetails,
+                                value.buyer_facebook_psid
+                            );
+                        }
+
+                        channel.ack(msg);
                     }catch(e){
-                        console.log("-Error conversationModel.add method at file rabbitmq.js");
+                        console.log("-ERROR consume rabbitMQ :",e);
                     }
+                    
                 },
                 { 
                     noAck: false //yêu cầu channel gửi ack khi xử lý xong message
