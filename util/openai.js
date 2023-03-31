@@ -2,7 +2,7 @@ const {Configuration, OpenAIApi} = require("openai");
 require('dotenv').config();
 const promptModel = require("../models/prompt.model");
 const buyerModel  = require("../models/buyer.model");
-const buyerUtil = require("./buyer");
+const rabbitMQ  = require("./rabbitmq");
 
 module.exports={
 
@@ -107,11 +107,27 @@ module.exports={
             console.log("--------------------------------------\n\n\n\n");
 
             if(buyer.length==0){
-                buyerUtil.addNewBuyer(FanpageDetails,buyer_facebook_psid,AIReplySummary);
+
+                let valueInfo={
+                    FanpageDetails,
+                    buyer_facebook_psid,
+                    AIReplySummary,
+                    type : "add"
+                };
+                //send to queue rabbitMQ for add buyer to DB
+                rabbitMQ.producerRabbitMQ(JSON.stringify(valueInfo));
+                
             }else{
 
-                //update user info after the number of pre-configured days
-                buyerUtil.updateFacebookUserInfo(buyer,FanpageDetails,buyer_facebook_psid);
+                let valueInfo={
+                    FanpageDetails,
+                    buyer_facebook_psid,
+                    buyer,
+                    type : "update"
+                };
+
+                //send to rabbitMQ for update infomation(facebook name,..) buyer to DB
+                rabbitMQ.producerRabbitMQ(JSON.stringify(valueInfo));
 
                 //update summary for buyer
                 await buyerModel.update({
