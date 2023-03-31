@@ -7,7 +7,6 @@ const config = require("../config/default.json");
 module.exports = {
 
     addNewBuyer:async function(FanpageDetails,buyer_facebook_psid,AIReplySummary){
-        try{
             //get profile facebook by psid
             const dataInfo=handleFacebook.getFacebookUserInfo(FanpageDetails.key_fanpage,buyer_facebook_psid);
             let profile_name="khong lay duoc ten.";
@@ -27,24 +26,21 @@ module.exports = {
             }
 
             //add buyer to DB
-            await buyerModel.add({
-                buyer_id    :uuidv4(),
-                profile_name:profile_name,
-                profile_pic :profile_pic,
-                facebook_id :buyer_facebook_psid,
-                fanpage_id  :FanpageDetails.fanpage_id,
-                active      :true,
-                summary_text:AIReplySummary,
-                modified_user_date : currentTime
-            });
-        }catch(e){
-            console.log(e);
-        }
+            return await 
+                buyerModel.add({
+                    buyer_id    :uuidv4(),
+                    profile_name:profile_name,
+                    profile_pic :profile_pic,
+                    facebook_id :buyer_facebook_psid,
+                    fanpage_id  :FanpageDetails.fanpage_id,
+                    active      :true,
+                    summary_text:AIReplySummary,
+                    modified_user_date : currentTime
+                });
     },
 
     //update user info after the number of pre-configured days
     updateFacebookUserInfo:async function(buyer,FanpageDetails,buyer_facebook_psid){
-        try{
             //get current date and dbdate 
             const dbDate = new Date(buyer[0].modified_user_date);
             const currentDate = new Date();
@@ -70,21 +66,19 @@ module.exports = {
                     let modified_user_date = currentDate.toISOString();// cover format ISO 8601 for mysql
 
                     //update profile
-                    await buyerModel.update({
-                        buyer_id    :buyer[0].buyer_id
-                    },{
-                        profile_name,
-                        profile_pic,
-                        modified_user_date
-                    });
+                    return await 
+                        buyerModel.update({
+                            buyer_id    :buyer[0].buyer_id
+                        },{
+                            profile_name,
+                            profile_pic,
+                            modified_user_date
+                        });
 
                 }
 
             }
 
-        }catch(e){
-            console.log(e);
-        }
     }
 
 }
