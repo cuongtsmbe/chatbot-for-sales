@@ -15,15 +15,6 @@ CREATE TABLE `Buyer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
-CREATE TABLE `Conversation` (
-  `conversation_id` varchar(255) NOT NULL,
-  `fanpage_id` varchar(255) NOT NULL,
-  `sender_id` varchar(255) NOT NULL,
-  `message` text NOT NULL,
-  `type` varchar(10) NOT NULL,
-  `created_time` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
 
 CREATE TABLE `Fanpage` (
   `fanpage_id` varchar(255) NOT NULL,
@@ -93,9 +84,6 @@ ALTER TABLE `Buyer`
   ADD PRIMARY KEY (`buyer_id`),
   ADD KEY `fanpage_id` (`fanpage_id`);
 
-ALTER TABLE `Conversation`
-  ADD PRIMARY KEY (`conversation_id`),
-  ADD KEY `fanpage_id` (`fanpage_id`);
 
 ALTER TABLE `Fanpage`
   ADD PRIMARY KEY (`fanpage_id`),
@@ -117,10 +105,6 @@ ALTER TABLE `User`
 
 ALTER TABLE `Buyer`
   ADD CONSTRAINT `Buyer_ibfk_1` FOREIGN KEY (`fanpage_id`) REFERENCES `Fanpage` (`fanpage_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE `Conversation`
-  ADD CONSTRAINT `Conversation_ibfk_1` FOREIGN KEY (`fanpage_id`) REFERENCES `Fanpage` (`fanpage_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
 
 ALTER TABLE `Fanpage`
   ADD CONSTRAINT `Fanpage_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
