@@ -1,7 +1,6 @@
 const fanpageModel = require("../models/fanpage.model");
 const buyerModel = require("../models/buyer.model");
 const orderModel = require("../models/order.model");
-const rabbitMQ  = require("./rabbitmq");
 const { v4: uuidv4 } = require("uuid"); 
 const openaiUtil  = require("./openai");
 const request   = require("request");
@@ -46,22 +45,6 @@ module.exports = {
                     }
 
                 }
-
-
-                let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
-                let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
-                //add to coversation when AIresponse or người quản trị gửi đi
-                let obCoversation={
-                        conversation_id :uuidv4(),
-                        fanpage_id      :sender_psid,
-                        sender_id       :WebEvents.recipient.id,
-                        message         :WebEvents.message.text,
-                        type            :"Seller",
-                        created_time    :createdDatetime
-                };
-               
-                //cover json to string and send to queue rabbitMQ for add conversation in DB
-                rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
                
                 return true;
             }
@@ -78,18 +61,6 @@ module.exports = {
             // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
             let createdDate = new Date(); // Lấy thời gian hiện tại cho created_time
             let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
-
-            //add to coversation(user -> fanpage)
-            let obCoversation={
-                conversation_id :uuidv4(),
-                fanpage_id      :fanpage_id,
-                sender_id       :buyer_facebook_psid,
-                message         :WebEvents.message.text,
-                type            :"Buyer",
-                created_time    :createdDatetime
-            };
- 
-            rabbitMQ.producerRabbitMQ(JSON.stringify(obCoversation));
 
             //get details buyer by fanpage id and facebook sender_psid
             let BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
