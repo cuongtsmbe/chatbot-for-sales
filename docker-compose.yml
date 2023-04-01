@@ -39,11 +39,12 @@ services:
     networks:
       - bot-network
     volumes:
-      - ~/chatZi:/var/lib/mysql
+      - ~/chatZiTest:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
   rabbitmq:
     image: rabbitmq:3.9-management
     container_name: rabbitmq-bot
+    restart: always
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -53,4 +54,15 @@ services:
       - rabbitmq.env
     networks:
       - bot-network
+  redis:
+    image: redis:7.0.10
+    container_name: redis-bot
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes: 
+      - ~/redis_data_test:/data
+    networks:
+      - bot-network
+    command: redis-server --save 20 1 --loglevel warning --requirepass passwdconnectredisserver2023
 
