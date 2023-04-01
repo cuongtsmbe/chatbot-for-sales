@@ -12,5 +12,7 @@
     "minPoolConnectionRabbitMQ" : 1,
     "maxPoolChannelRabbitMQ"    : 10,
     "minPoolChannelRabbitMQ"    : 1,
-    "daysNumberCheckAndUpdateProfileBuyer" : 5
+    "daysNumberCheckAndUpdateProfileBuyer" : 5,
+    "api_version_facebook" : "v16.0",
+    "platform" : "MESSENGER"
 }
