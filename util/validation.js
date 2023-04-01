@@ -33,6 +33,15 @@ module.exports = {
         const datetimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
         //return boolean
         return datetimeRegex.test(datetimeString);
-      }
+    },
+
+    //validate type get conversation
+    validateTypeConversation: function(value){
+        const allowedTypes = ["current", "after","before"];
+        if (value && !allowedTypes.includes(value)) {
+            return "TypeCursor must be one of current,after or before.";
+        }
+        return true;
+    }
       
 }
