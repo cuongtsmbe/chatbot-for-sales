@@ -13,7 +13,6 @@ module.exports = {
         };
         
         try{
-            //get result in DB
             var result= await userModel.getOne(condition);
 
         }catch(e){

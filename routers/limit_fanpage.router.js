@@ -38,7 +38,6 @@ module.exports = {
         };
         
         if (isNaN(value.count)) {
-            // count không phải là kiểu number
             return res.status(400).json({
                 code:41,
                 message:"count must be number"
@@ -60,7 +59,6 @@ module.exports = {
                 });
             }
 
-            //insert to Db
             var result=await limit_fanpageModel.add(value);
 
             if(result.length==0 || result.affectedRows==0){
@@ -108,7 +106,6 @@ module.exports = {
         }
 
         try{
-            //update to Db
             var result=await limit_fanpageModel.update(condition,value);
 
             if(result.length==0 || result.affectedRows==0){

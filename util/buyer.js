@@ -12,7 +12,6 @@ module.exports = {
             let profile_name="khong lay duoc ten.";
             let profile_pic="khong lay duoc image";
 
-            //get time for add new buyer
             let currentTime = new Date();
                 currentTime = currentTime.toISOString();// cover format ISO 8601 for mysql
 
@@ -25,7 +24,6 @@ module.exports = {
                 }
             }
 
-            //add buyer to DB
             return await 
                 buyerModel.add({
                     buyer_id    :uuidv4(),
@@ -41,10 +39,9 @@ module.exports = {
 
     //update user info after the number of pre-configured days
     updateFacebookUserInfo:async function(buyer,FanpageDetails,buyer_facebook_psid){
-            //get current date and dbdate 
             const dbDate = new Date(buyer[0].modified_user_date);
             const currentDate = new Date();
-            const diffTime = Math.abs(currentDate - dbDate);//khoảng cách thời gian giữa hai ngày tính bằng milisecond
+            const diffTime = Math.abs(currentDate - dbDate); //diffTime is milisecond
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
             //if diffDays large than day in config then check and update profile for buyer
@@ -64,8 +61,7 @@ module.exports = {
                 if(buyer[0].profile_name !== profile_name || buyer[0].profile_pic !== profile_pic){
 
                     let modified_user_date = currentDate.toISOString();// cover format ISO 8601 for mysql
-
-                    //update profile
+                    
                     return await 
                         buyerModel.update({
                             buyer_id    :buyer[0].buyer_id

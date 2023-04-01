@@ -52,7 +52,6 @@ module.exports = {
             }
 
             fanpage=fanpage[0];
-            //get conversations
 
             if(condition.TypeCursor=="current"){
                 return await conversationUtil.getCurrentMessage(fanpage,condition.user_psid);

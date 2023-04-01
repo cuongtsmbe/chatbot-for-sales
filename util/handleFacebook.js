@@ -58,8 +58,7 @@ module.exports = {
             let fanpage_id = WebEvents.recipient.id;
 
             // Định dạng chuỗi datetime cho MySQL
-            // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
-            let createdDate = new Date(); // Lấy thời gian hiện tại cho created_time
+            let createdDate = new Date(); 
             let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
 
             //get details buyer by fanpage id and facebook sender_psid
@@ -68,7 +67,6 @@ module.exports = {
                 fanpage_id  :fanpage_id
             });
             
-            //get fanpage 
             let FanpageDetails = await fanpageModel.getOne({fanpage_id:fanpage_id});
 
             //check fanpage exist in DB 
@@ -89,15 +87,11 @@ module.exports = {
                 return false;
             }
 
-            // Checks if the message contains text
             if (WebEvents.message.text) {  
-                // Create the payload for a AI response text message, which
-                // will be added to the body of our request to the Send API
-
                 //thêm "donhang" vào DB. để phòng trg hợp khách hàng ghi sai/không ghi : "LENDON" || lendon
                 if(WebEvents.message.text.includes("LENDON")||WebEvents.message.text.includes("lendon")||WebEvents.message.text.includes("donhang")){
                     
-                    let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+                    let modifiedDate = new Date(); 
                     let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
 
                     var value={
@@ -156,7 +150,6 @@ module.exports = {
     },
 
     // Sends response messages via the Send API
-    // response from page to sender_id
     callSendAPI: function(sender_psid, response ,PAGE_ACCESS_TOKEN) {
         // Construct the message body
         let request_body = {
@@ -182,8 +175,7 @@ module.exports = {
         }); 
     },
 
-    //lay thong tin user(first_name,last_name,profile_pic) tu psid facebook and page_access_token 
-    //page_accesstoken is key fanpage
+    //lay thong tin user(first_name,last_name,profile_pic) tu psid facebook and page_access_token (key fanpage)
     getFacebookUserInfo:async function(PAGE_ACCESS_TOKEN,PSID){
         try{
             const options = {

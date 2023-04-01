@@ -62,7 +62,6 @@ module.exports = {
         }
 
         try{
-            //get result in DB
             var result= await promptModel.getOne(condition);
 
         }catch(e){
@@ -79,8 +78,8 @@ module.exports = {
     //add new prompt
     add:async function(req,res,next){
 
-        let createdDate = new Date(); // Lấy thời gian hiện tại cho created_date
-        let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+        let createdDate = new Date(); 
+        let modifiedDate = new Date();
 
         let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
         let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
@@ -88,7 +87,7 @@ module.exports = {
  
         var value={
             prompt_id           :uuidv4(),           
-            active              :false,   //default is false
+            active              :false,  
             content             :req.body.content,           
             created_date        :createdDatetime ,         
             modified_date       :modifiedDatetime,         
@@ -97,7 +96,6 @@ module.exports = {
 
 
         if(!value.content){
-            //content is empty or undefined,null
             return res.status(400).json({
                 code:40,
                 message:`content is required.`
@@ -115,7 +113,6 @@ module.exports = {
                 });
             }
 
-            //insert to Db
             var result=await promptModel.add(value);
 
             if(result.length==0 || result.affectedRows==0){
@@ -140,15 +137,12 @@ module.exports = {
 
     //update content prompt by ID 
     updateContent:async function(req,res,next){
-        //condition prompt_id
         var condition={
             prompt_id           :req.params.prompt_id
         }
 
-        // Lấy thời gian hiện tại cho modified_date
         let modifiedDate = new Date(); 
         // Định dạng chuỗi datetime cho MySQL
-        // Cắt để loại bỏ phần giây thừa và thay thế ký tự "T" bằng dấu cách để đáp ứng định dạng datetime của MySQL
         let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
 
         var value={
@@ -157,7 +151,6 @@ module.exports = {
         };
 
         if(!value.content){
-             //content is empty or undefined,null
              return res.status(400).json({
                 code:40,
                 message:`content is required.`
@@ -192,7 +185,6 @@ module.exports = {
 
     //update active prompt by ID 
     updateActive:async function(req,res,next){
-        //condition prompt_id
         var condition={
             prompt_id         :req.params.prompt_id
         }
@@ -209,7 +201,6 @@ module.exports = {
 
 
         if(!value.fanpage_id){
-            //check input fanpage id
                 return res.status(400).json({
                     code:41,
                     message:"fanpage id is required."
@@ -217,7 +208,6 @@ module.exports = {
         }
 
         if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
-            // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
                 message:"active must be boolean"

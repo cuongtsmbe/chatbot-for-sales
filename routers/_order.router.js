@@ -17,7 +17,6 @@ module.exports = {
    
     //get order by fanpage id, time and page 
     getByFanpageIDAndTime:async function(req,res,next){
-        //set default page
         if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
@@ -30,7 +29,6 @@ module.exports = {
         };
 
         if(!condition.created_date){
-            //created_date undefined hoặc null ,empty
             condition.created_date = null;
         }
 
@@ -63,7 +61,6 @@ module.exports = {
         };
         
         try{
-            //get result in DB
             var result= await orderModel.getOne(condition);
 
         }catch(e){
@@ -81,7 +78,7 @@ module.exports = {
     //add new order
     add:async function(req,res,next){
 
-        let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+        let modifiedDate = new Date(); 
         let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
 
 
@@ -100,13 +97,10 @@ module.exports = {
             fanpage_id  :value.fanpage_id
         }
 
-        //get create_date is now time
         if(!value.created_date){
             value.created_date=modifiedDatetime;
         }else{
-            //check create_date is format of datetime in mysql
             if(!isValidMySQLDatetime(value.created_date)){
-                //is not format of datetime
                 return res.status(400).json({
                     code:40,
                     message:`create_time is required format datetime.`
@@ -135,7 +129,6 @@ module.exports = {
                 });
             }
 
-            //insert to Db
             var result=await orderModel.add(value);
 
             if(result.length==0 || result.affectedRows==0){
@@ -167,7 +160,7 @@ module.exports = {
             order_id         :req.params.order_id
         }
 
-        let modifiedDate = new Date(); // Lấy thời gian hiện tại cho modified_date
+        let modifiedDate = new Date(); 
         let modifiedDatetime = modifiedDate.toISOString().slice(0, 19).replace('T', ' ');
 
         var value={
@@ -176,8 +169,7 @@ module.exports = {
             status              : req.body.status   
         };
 
-        try{
-            //kiem tra status is number 
+        try{ 
             if(isNaN(value.status) || parseInt(value.status)<0){
                 return res.status(400).json({
                         code:40,
@@ -207,7 +199,6 @@ module.exports = {
         }
 
         try{
-            //update to Db
             var result=await orderModel.update(condition,value);
 
             if(result.length==0 || result.affectedRows==0){

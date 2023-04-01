@@ -51,7 +51,6 @@ module.exports = {
 
     //get user by condition status(0:deleted,1:normal,2: admin block , 3 all status) and phone number
     getByStatusAndPhone:async function(req,res,next){
-        //set default page
         if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
@@ -100,7 +99,6 @@ module.exports = {
         };
         
         try{
-            //get result in DB
             var result= await userModel.getOne(condition);
 
         }catch(e){
@@ -128,7 +126,6 @@ module.exports = {
             status          :1          
         };
 
-         //check input
          if(!value.user_name || !value.phone_number || !value.address || !value.role_type || !value.email || !value.password){
             return res.status(400).json({
                 code:40,
@@ -139,7 +136,6 @@ module.exports = {
 
         //role type phải khác root
         if( value.role_type === "root"){
-            //thong tin khong hợp lệ
             return res.status(400).json({
                 code:40,
                 message:"required role khác root."
@@ -152,7 +148,6 @@ module.exports = {
             var validationResult=validateRoleInput(value);
 
             if ( validationResult !== true) {
-                //thong tin khong hợp lệ
                 return res.status(400).json({
                     code:40,
                     message:validationResult
@@ -189,7 +184,7 @@ module.exports = {
                 //save password hash
                 value.password = hashedPassword;
 
-                    //insert to Db
+                //insert to Db
                 var result=await userModel.add(value);
 
                 if(result.length==0 || result.affectedRows==0){

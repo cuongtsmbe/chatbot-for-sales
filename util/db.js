@@ -12,7 +12,6 @@ module.exports = {
                         console.log(error); 
                         return resolve([]);
                     };
-                    //giaỉ phóng kết nối
                     connection.release();
                     resolve(results);
                 });
@@ -27,7 +26,6 @@ module.exports = {
                         console.log(error); 
                         return resolve([]);
                     };
-                    //giaỉ phóng kết nối
                     connection.release();
                     resolve(results);
                 });
@@ -42,7 +40,6 @@ module.exports = {
                         console.log(error); 
                         return resolve([]);
                     };
-                    //giaỉ phóng kết nối
                     connection.release();
                     resolve(results);
                 });
@@ -57,7 +54,6 @@ module.exports = {
                         console.log(error); 
                         return resolve([]);
                     };
-                    //giaỉ phóng kết nối
                     connection.release();
                     resolve(results);
                 });
@@ -73,7 +69,6 @@ module.exports = {
                         console.log(error); 
                         return resolve([]);
                     };
-                    //giaỉ phóng kết nối
                     connection.release();
                     resolve(results);
                 });

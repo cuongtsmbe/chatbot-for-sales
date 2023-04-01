@@ -12,7 +12,6 @@ module.exports = {
 
     //get buyer by FANPAGE_ID and page
     getByFanpageID:async function(req,res,next){
-        //set default page
         if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
@@ -46,7 +45,6 @@ module.exports = {
     
     //get buyer by ACTIVE,FANPAGE_ID and page
     getByActiveAndFanpageID:async function(req,res,next){
-        //set default page
         if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
@@ -59,7 +57,6 @@ module.exports = {
         };
 
         if (String(condition.active).toLowerCase() != "true" && String(condition.active).toLowerCase() != "false") {
-            // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
                 message:"active must be boolean"
@@ -92,7 +89,6 @@ module.exports = {
 
     //update active by buyer id 
     updateActiveByID:async function(req,res,next){
-        //condition buyer_id
         var condition={
             buyer_id        :req.params.buyer_id
         }
@@ -110,7 +106,6 @@ module.exports = {
         }
 
         if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
-            // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
                 message:"active must be boolean."
@@ -121,7 +116,6 @@ module.exports = {
             //cover string "true" or "false" to boolean
             value.active = JSON.parse(String(value.active).toLowerCase());
 
-            //update to Db
             var result=await buyerModel.update(condition,value);
 
             if(result.length==0 || result.affectedRows==0){

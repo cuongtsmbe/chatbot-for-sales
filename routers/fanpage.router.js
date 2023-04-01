@@ -21,7 +21,6 @@ module.exports = {
 
     //get fanpage by page
     get:async function(req,res,next){
-        //set default page
         if(isNaN(req.query.page) || req.query.page<=0 ){
             req.query.page=1;
         }
@@ -54,7 +53,6 @@ module.exports = {
 
     //get list fanpage by UserID and status
     getByStatusAndUserID:async function(req,res,next){
-        //set default page
         if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
@@ -89,7 +87,6 @@ module.exports = {
 
     //get list fanpage by condition(status,name,payment_due_date,page)
     getByCondition:async function(req,res,next){
-        //set default page
         if(isNaN(req.query.page) || req.query.page<=0){
             req.query.page=1;
         }
@@ -131,7 +128,6 @@ module.exports = {
         };
         
         try{
-            //get result in DB
             var result= await fanpageModel.getOne(condition);
 
         }catch(e){
@@ -161,9 +157,7 @@ module.exports = {
             status                  :1         
         };
         
-        //valide fanpage_id không null, undefined hoặc rỗng
         if(!value.fanpage_id){
-            //fanpage_id khong hợp lệ
             return res.status(400).json({
                 code:40,
                 message:"fanpage_id không hợp lệ."
@@ -182,7 +176,6 @@ module.exports = {
         var validationResult=validateFanpageInput(value);
     
         if ( validationResult !== true) {
-            //thong tin khong hợp lệ
             return res.status(400).json({
                 code:40,
                 message:validationResult
@@ -204,7 +197,6 @@ module.exports = {
                 });
             }
 
-            //get count all fanpage actived in server
             var countFanpageActivedInServer = await fanpageModel.countAllFanpageActived();
 
             //check fanpage active in server had limited 
@@ -235,7 +227,6 @@ module.exports = {
                 });
             }
 
-            //insert to DB
             var result=await fanpageModel.add(value);
 
             if(result.length == 0 || result.affectedRows==0){
@@ -289,7 +280,6 @@ module.exports = {
                 });
         }
 
-        //check active input
         if(!value.active){
             return  res.status(400).json({
                 code:40,
@@ -317,7 +307,6 @@ module.exports = {
         var validationResult=validateFanpageInput(value);
     
         if ( validationResult !== true) {
-            //thong tin khong hợp lệ
             return res.status(400).json({
                 code:40,
                 message:validationResult
@@ -339,7 +328,6 @@ module.exports = {
                 });
             }
 
-            //get details of fanpage id 
             var detailsFanpage= await fanpageModel.getOne(condition);
 
             if(detailsFanpage.length == 0 ){
@@ -350,7 +338,6 @@ module.exports = {
             }
             detailsFanpage = detailsFanpage[0];
 
-            //get count all fanpage actived in server
             var countFanpageActivedInServer = await fanpageModel.countAllFanpageActived();
 
             //check fanpage active in server had limited 
@@ -372,7 +359,6 @@ module.exports = {
                  });
             }
 
-            //update to Db
             var result=await fanpageModel.update(condition,value);
 
             if(result.length==0 || result.affectedRows==0){
@@ -404,12 +390,11 @@ module.exports = {
             fanpage_id         :req.params.fanpage_id
         }
         var value={
-            active       :req.body.active,       //role type need update
+            active       :req.body.active,     
         };
 
 
         if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
-            // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
                 message:"active must be boolean"
@@ -441,7 +426,6 @@ module.exports = {
                 });
             }
 
-            //update to Db
             var result=await fanpageModel.update(condition,value);
 
             if(result.length == 0 ||  result.affectedRows==0){
@@ -469,7 +453,6 @@ module.exports = {
 
     //delete fanpage by fanpage_id (change status to 0 and active is false) 
     delete: async function(req,res,next){
-        //condition fanpage_id
         var condition={
             fanpage_id         :req.params.fanpage_id
         }
@@ -479,7 +462,6 @@ module.exports = {
         };
 
         try{
-            //update to Db
             var result=await fanpageModel.update(condition,value);
 
             if(result.length==0 || result.affectedRows==0){

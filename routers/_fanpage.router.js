@@ -84,10 +84,9 @@ module.exports = {
             user_id             :req.user.user_id
         }
         var value={
-            active              :req.body.active,       //role type need update
+            active              :req.body.active,      
         };
 
-        //check active 
         if(!value.active){
             return res.status(400).json({
                 code:40,
@@ -96,7 +95,6 @@ module.exports = {
         }
 
         if (String(value.active).toLowerCase() != "true" && String(value.active).toLowerCase() != "false") {
-            // active không phải là kiểu boolean
             return res.status(400).json({
                 code:41,
                 message:"active must be boolean"
@@ -118,7 +116,7 @@ module.exports = {
                     message:`update active of ${condition.fanpage_id} khong thanh cong`
                 })
             }
-            //update to Db
+       
             var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},value);
 
             if(result.length == 0 || result.affectedRows==0){
@@ -145,7 +143,6 @@ module.exports = {
 
     //delete fanpage by fanpage_id and user id (change status to 0 and active is false) 
     deleteByUserIDAndFanpageID: async function(req,res,next){
-        //condition fanpage_id
         var condition={
             fanpage_id          :req.params.fanpage_id,
             user_id             :req.user.user_id
@@ -167,7 +164,6 @@ module.exports = {
                 })
             }
 
-            //update to Db
             var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},value);
 
             if(result.length==0 || result.affectedRows==0){
