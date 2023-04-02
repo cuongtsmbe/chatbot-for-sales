@@ -1,4 +1,3 @@
-const conversationModel = require('../models/conversation.model');
 const config = require("../config/default.json");
 const amqp = require('amqplib');
 const createPool = require('generic-pool').createPool;
@@ -59,9 +58,8 @@ var errPool="";
 connectionPool.on('factoryCreateError', function(err){
     if(!errPool){
         errPool=err;
-        console.log("factoryCreateError :", err);
+        console.log("RabbitMQ factoryCreateError :", err);
     }
-  
 })
 
 //giải phóng connect and channel trong pool khi tiến trình nhận "SIGNINT"(Ctrl + C)
