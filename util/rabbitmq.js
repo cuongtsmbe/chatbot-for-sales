@@ -8,12 +8,12 @@ const urlRabbitMQ = `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.R
 const connectionFactory = {
     create: async function () {
         const connection =await amqp.connect(urlRabbitMQ);
-        console.log('Created connection');
+        console.log('Created connection(RabbitMQ)');
         return connection;
     },
     destroy: function (connection) {
         connection.close();
-        console.log('Destroyed connection');
+        console.log('Destroyed connection(RabbitMQ)');
     },
     validate: function (connection) {
         //nếu connection không hợp lệ (ví dụ: đã bị đóng) pool sẽ tự xóa và tạo ra một kết nối mới để thay thế   
@@ -26,12 +26,12 @@ const channelFactory =  {
         //khi channel chưa có thì sẽ lấy connection trong Pool và tại channel trên connection đó
         const connection = await connectionPool.acquire();
         const channel = await connection.createChannel();
-        console.log('Created channel');
+        console.log('Created channel(RabbitMQ)');
         return channel;
     },
     destroy: function (channel) {
         channel.close();
-        console.log('Destroyed channel');
+        console.log('Destroyed channel(RabbitMQ)');
     },
     validate: function (channel) {
         //nếu channel không hợp lệ (ví dụ: đã bị đóng) pool sẽ tự xóa channel và tạo ra channel mới để thay thế 
@@ -54,12 +54,9 @@ const channelPool = createPool(channelFactory,{
 
 
 //listen and console err of pool
-var errPool="";
 connectionPool.on('factoryCreateError', function(err){
-    if(!errPool){
         errPool=err;
         console.log("RabbitMQ factoryCreateError :", err);
-    }
 })
 
 //giải phóng connect and channel trong pool khi tiến trình nhận "SIGNINT"(Ctrl + C)
