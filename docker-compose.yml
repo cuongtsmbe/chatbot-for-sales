@@ -11,7 +11,7 @@ services:
     ports:
       - "8083:8080"
     networks:
-      -  bot-network
+      - bot-network
     env_file:
       - .env
     volumes:
@@ -19,6 +19,7 @@ services:
     depends_on:
       - db
       - rabbitmq
+      - redis
     working_dir: /usr/src/chatbotZi
     command:
       - /bin/bash
@@ -62,7 +63,9 @@ services:
       - "6379:6379"
     volumes: 
       - ~/redis_data_test:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - bot-network
-    command: redis-server --save 20 1 --loglevel warning --requirepass passwdconnectredisserver2023
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    
 
