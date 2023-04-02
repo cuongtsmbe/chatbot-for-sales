@@ -2,7 +2,7 @@ const config    = require("../config/default.json");
 
 module.exports={
     getCurrentMessage: async (fanpage,user_psid) => {
-        const graphApiVersionUrl  = `https://graph.facebook.com/${config.api_version_facebook}`;
+        const graphApiVersionUrl  = `https://graph.facebook.com/${config.apiVersionFacebook}`;
         // Tìm cuộc trò chuyện với một người dùng cụ thể
         var conversationsResponse = await axios.get(
             `${graphApiVersionUrl}/${fanpage.fanpage_id}/conversations`, 
