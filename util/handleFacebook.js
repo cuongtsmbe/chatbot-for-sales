@@ -4,19 +4,31 @@ const orderModel = require("../models/order.model");
 const { v4: uuidv4 } = require("uuid"); 
 const openaiUtil  = require("./openai");
 const request   = require("request");
+const {redis}   = require("./redis");
 
 module.exports = {
     //handle Messenger text or file
     handleMessage:async function(sender_psid, WebEvents) {
         try{
-            
+            let checkFanpage=null;
             let response;
-            
-            let checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
 
+            checkFanpage = await redis.get(`fanpage_${sender_psid}`);
+          
+            if(checkFanpage==null){
+                //redis not exist this fanpage 
+                checkFanpage = await fanpageModel.getOne({fanpage_id:sender_psid}); 
+                if(checkFanpage.length > 0){
+                    //set value fanpage to redis if not exist
+                    await redis.set(`fanpage_${sender_psid}`, JSON.stringify(checkFanpage));
+                }
+            }else{
+                checkFanpage = JSON.parse(checkFanpage);
+            }
+            
             //người quản trị or AI fanpage gửi qua buyer 
             if(checkFanpage.length > 0){
-
+                
                 //khi người quản trị gõ "[on]" hoặc "[off]" thì thực hiện update active AI cho buyer
                 if(String(WebEvents.message.text).toLowerCase().includes("[on]")||String(WebEvents.message.text).toLowerCase().includes("[off]")){
                     let active_change=false;
@@ -26,10 +38,24 @@ module.exports = {
                     }
 
                     //get details buyer by fanpage id and facebook sender_psid
-                    let BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
-                        facebook_id :WebEvents.recipient.id,
-                        fanpage_id  :sender_psid
-                    });
+                    let BuyerDetails = await redis.get(`buyer_fanpageid_${sender_psid}_fbid_${WebEvents.recipient.id}`) ;
+                    
+                    if(BuyerDetails==null){
+                        //redis not exist 
+                        BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
+                            facebook_id :WebEvents.recipient.id,
+                            fanpage_id  :sender_psid
+                        });
+
+                        if(BuyerDetails.length > 0){
+                            //set value fanpage to redis if not exist
+                            await redis.set(`buyer_fanpageid_${sender_psid}_fbid_${WebEvents.recipient.id}`, JSON.stringify(BuyerDetails));
+                        }
+                    }else{
+                        BuyerDetails = JSON.parse(BuyerDetails);
+                    }
+
+
                     //thực hiện turn on/off nếu buyer có trong hệ thống 
                     if(BuyerDetails.length!=0 && (BuyerDetails[0].active != active_change)){
                     
@@ -41,7 +67,20 @@ module.exports = {
                             active          : active_change
                         };
                         //update to Db
-                        await buyerModel.update(condition,value);
+                        let buyerActiveUpdateResult=await buyerModel.update(condition,value);
+
+                        if(buyerActiveUpdateResult.length!=0 && buyerActiveUpdateResult.affectedRows!=0){
+                            //update active in redis
+                            BuyerDetails[0].active=active_change;
+
+                            let redisUpdateActiveResult=await redis.set(`buyer_fanpageid_${sender_psid}_fbid_${WebEvents.recipient.id}`, JSON.stringify(BuyerDetails));
+                           
+                            if(redisUpdateActiveResult!="OK"){
+                                console.log(`[REDIS] set active for buyer_fanpageid_${sender_psid}_fbid_${WebEvents.recipient.id} not success.`);
+                            }
+
+                        }
+                        
                     }
 
                 }
@@ -60,14 +99,39 @@ module.exports = {
             // Định dạng chuỗi datetime cho MySQL
             let createdDate = new Date(); 
             let createdDatetime = createdDate.toISOString().slice(0, 19).replace('T', ' ');
-
+     
             //get details buyer by fanpage id and facebook sender_psid
-            let BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
-                facebook_id :buyer_facebook_psid,
-                fanpage_id  :fanpage_id
-            });
-            
-            let FanpageDetails = await fanpageModel.getOne({fanpage_id:fanpage_id});
+            let BuyerDetails = await redis.get(`buyer_fanpageid_${fanpage_id}_fbid_${buyer_facebook_psid}`) ;
+                    
+            if(BuyerDetails==null){
+
+                BuyerDetails = await buyerModel.getOneByFanpageIDAndFacebookIDOfBuyer({
+                    facebook_id :buyer_facebook_psid,
+                    fanpage_id  :fanpage_id
+                });
+
+                if(BuyerDetails.length > 0){
+                    await redis.set(`buyer_fanpageid_${fanpage_id}_fbid_${buyer_facebook_psid}`, JSON.stringify(BuyerDetails));
+                }
+
+            }else{
+                BuyerDetails = JSON.parse(BuyerDetails);
+            }
+
+
+            let FanpageDetails = await redis.get(`fanpage_${fanpage_id}`);
+
+            if(FanpageDetails==null){
+
+                FanpageDetails = await fanpageModel.getOne({fanpage_id:fanpage_id});
+
+                if(FanpageDetails.length > 0){
+                    await redis.set(`fanpage_${fanpage_id}`, JSON.stringify(FanpageDetails));
+                }
+                
+            }else{
+                FanpageDetails = JSON.parse(FanpageDetails);
+            }
 
             //check fanpage exist in DB 
             if(FanpageDetails == null || FanpageDetails.length == 0){
