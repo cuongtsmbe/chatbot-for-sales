@@ -1,8 +1,9 @@
 const {Configuration, OpenAIApi} = require("openai");
 require('dotenv').config();
 const promptModel = require("../models/prompt.model");
-const buyerModel  = require("../models/buyer.model");
 const rabbitMQ  = require("./rabbitmq");
+const {redis}   = require("./redis");
+// const buyerModel  = require("../models/buyer.model");
 
 module.exports={
 
@@ -39,11 +40,22 @@ module.exports={
     //get AI reply for question buyer(buyer) (based on summarized chats history ) 
     GetAIReplyForBuyer: async function(buyer_facebook_psid,buyer,FanpageDetails,textReceivedMessage){
         try{
-            //get prompt by fanpage_id
-            let PromptResult = await promptModel.getPromptActivedByFanpageID({
-                fanpage_id:FanpageDetails.fanpage_id,
-                active:true
-            });
+            //get prompt by fanpage_id 
+            let PromptResult = redis.get(`prompt_by_fanpage_${FanpageDetails.fanpage_id}`);
+
+            if(PromptResult==null){
+                PromptResult = await promptModel.getPromptActivedByFanpageID({
+                    fanpage_id:FanpageDetails.fanpage_id,
+                    active:true
+                });
+
+                if(PromptResult.length > 0){
+                    await redis.set(`prompt_by_fanpage_${FanpageDetails.fanpage_id}`, JSON.stringify(PromptResult));
+                }
+            }else{
+                PromptResult = JSON.parse(PromptResult);
+            }
+
 
             if(PromptResult.length == 0 ){
                 return " Chưa train AI cho fanpage này.";
@@ -129,13 +141,31 @@ module.exports={
                 //send to rabbitMQ for update infomation(facebook name,..) buyer to DB
                 rabbitMQ.producerRabbitMQ(JSON.stringify(valueInfo));
 
-                //update summary for buyer
+                /*** 
+                //update summary for buyer in DB 
                 await buyerModel.update({
                     buyer_id    :buyer[0].buyer_id
                 },{
                     summary_text:AIReplySummary
                 });
+                ***/
 
+                // redis update summary text of buyer
+                // because when add new buyer(in DB) then next message in redis had infomation of buyer
+                // so just update as redis then reduce the number of inserts to DB after each message sent by the buyer.
+                let BuyerDetails = await redis.get(`buyer_fanpageid_${FanpageDetails.fanpage_id}_fbid_${buyer_facebook_psid}`) ;
+
+                if(BuyerDetails!=null){
+
+                    BuyerDetails = JSON.parse(BuyerDetails);
+
+                    if(BuyerDetails.length > 0){
+                        BuyerDetails[0].summary_text=AIReplySummary;
+                        await redis.set(`buyer_fanpageid_${FanpageDetails.fanpage_id}_fbid_${buyer_facebook_psid}`, JSON.stringify(BuyerDetails));
+                    }
+
+                }
+                
             }
 
         }catch(e){

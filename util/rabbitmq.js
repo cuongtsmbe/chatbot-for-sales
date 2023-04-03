@@ -55,7 +55,6 @@ const channelPool = createPool(channelFactory,{
 
 //listen and console err of pool
 connectionPool.on('factoryCreateError', function(err){
-        errPool=err;
         console.log("RabbitMQ factoryCreateError :", err);
 })
 
