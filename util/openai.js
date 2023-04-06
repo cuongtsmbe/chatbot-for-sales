@@ -3,13 +3,10 @@ require('dotenv').config();
 const promptModel = require("../models/prompt.model");
 const rabbitMQ  = require("./rabbitmq");
 const {redis}   = require("./redis");
-// const buyerModel  = require("../models/buyer.model");
 
 module.exports={
 
-    //send prompt to openAI and return text(String) result
     generateCompletion: async function(messages,FanpageDetails,temperature=0.7,max_tokens) {
-
         try{
             let configuration = new Configuration({
                 apiKey: FanpageDetails.key_open_ai,
@@ -20,7 +17,7 @@ module.exports={
                 model: "gpt-3.5-turbo",
                 messages,
                 temperature, //độ đang sinh từ ngẩu nhiên của mô hình
-                max_tokens:max_tokens  //chọn token tối đa cho câu hỏi và câu trả lời
+                max_tokens:max_tokens  
             });
 
             console.log("---openai response : ---");
@@ -30,7 +27,6 @@ module.exports={
 
             return reponseAIText;
         }catch(e){
-            //max token 
             console.log(e);
             return " ";
         }
@@ -65,26 +61,20 @@ module.exports={
                 PromptResult = PromptResult[0];
             }
 
-            //messages for training AI 
-            let  messages=[];
+            let messages=[];
             let summaryText="";
             //kiểm tra summary AI with buyer
             if(buyer.length != 0){
-                //buyer đã có tin nhắn với fanpage trước đây(có summary)
                 summaryText=buyer[0].summary_text;
                 messages.push({"role": "system", "content": `${PromptResult.content}. Biết nội dung tóm tắt của bạn và buyer trước đó là : ${summaryText}` });
             }else{
-                //buyer nhắn đến fanpage lần đầu 
                 messages.push({"role": "system", "content": `${PromptResult.content}.` });
             }
 
-            //current messenger buyer send to fanpage 
             messages.push({"role": "user", "content": `${textReceivedMessage}.` });
             
-            //send buyer to openAI and receive AI reply  
             let AIReply =await this.generateCompletion(messages,FanpageDetails,0.6,500);
 
-            //require summary history and current chat(of AI and buyer)
             this.GetSummaryChats(buyer_facebook_psid,buyer,summaryText,textReceivedMessage,AIReply,FanpageDetails);
             
             return AIReply;
@@ -94,7 +84,6 @@ module.exports={
         }
     },
 
-    //get summary chats of buyer from openAI
     GetSummaryChats: async function(buyer_facebook_psid,buyer,summaryText,textBuyerSend,AIReply,FanpageDetails) {
         try{
 
@@ -140,15 +129,6 @@ module.exports={
 
                 //send to rabbitMQ for update infomation(facebook name,..) buyer to DB
                 rabbitMQ.producerRabbitMQ(JSON.stringify(valueInfo));
-
-                /*** 
-                //update summary for buyer in DB 
-                await buyerModel.update({
-                    buyer_id    :buyer[0].buyer_id
-                },{
-                    summary_text:AIReplySummary
-                });
-                ***/
 
                 // redis update summary text of buyer
                 // because when add new buyer(in DB) then next message in redis had infomation of buyer
