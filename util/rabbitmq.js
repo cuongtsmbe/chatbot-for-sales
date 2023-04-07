@@ -8,12 +8,12 @@ const urlRabbitMQ = `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.R
 const connectionFactory = {
     create: async function () {
         const connection =await amqp.connect(urlRabbitMQ);
-        console.log('Created connection(RabbitMQ)');
+        console.log(`[Worker ${process.pid}] Created connection(RabbitMQ)`);
         return connection;
     },
     destroy: function (connection) {
         connection.close();
-        console.log('Destroyed connection(RabbitMQ)');
+        console.log(`[Worker ${process.pid}] Destroyed connection(RabbitMQ)`);
     },
     validate: function (connection) {
         //nếu connection không hợp lệ (ví dụ: đã bị đóng) pool sẽ tự xóa và tạo ra một kết nối mới để thay thế   
@@ -26,12 +26,12 @@ const channelFactory =  {
         //khi channel chưa có thì sẽ lấy connection trong Pool và tại channel trên connection đó
         const connection = await connectionPool.acquire();
         const channel = await connection.createChannel();
-        console.log('Created channel(RabbitMQ)');
+        console.log(`[Worker ${process.pid}] Created channel(RabbitMQ)`);
         return channel;
     },
     destroy: function (channel) {
         channel.close();
-        console.log('Destroyed channel(RabbitMQ)');
+        console.log(`[Worker ${process.pid}] Destroyed channel(RabbitMQ)`);
     },
     validate: function (channel) {
         //nếu channel không hợp lệ (ví dụ: đã bị đóng) pool sẽ tự xóa channel và tạo ra channel mới để thay thế 
@@ -55,7 +55,7 @@ const channelPool = createPool(channelFactory,{
 
 //listen and console err of pool
 connectionPool.on('factoryCreateError', function(err){
-        console.log("RabbitMQ factoryCreateError :", err);
+        console.log(`[Worker ${process.pid}] RabbitMQ factoryCreateError :`, err);
 })
 
 //giải phóng connect and channel trong pool khi tiến trình nhận "SIGNINT"(Ctrl + C)
@@ -75,13 +75,13 @@ module.exports = {
                 durable: true 
             });
             await channel.prefetch(config.prefetchConsumerRabbitMQ); // chỉ định số lượng tin nhắn tối đa trên consumer này
-            console.log("Waiting for messages in %s. To exit, press CTRL+C ", config.queueCoversation);
+            console.log(`[Worker ${process.pid}] Waiting for messages in %s. To exit, press CTRL+C `, config.queueCoversation);
             await channel.consume(
                 config.queueCoversation,
                 async (msg) => {
                     try{
                         // xử lý tin nhắn
-                        console.log(`ID : ${IDConsumer} - received message: ${msg.content.toString()}`);
+                        console.log(`[Worker ${process.pid}] ID : ${IDConsumer} - received message: ${msg.content.toString()}`);
 
                         const value = JSON.parse(msg.content.toString());
 

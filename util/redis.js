@@ -1,17 +1,17 @@
-const redis = require('redis');
+const Redis = require("ioredis");
 require('dotenv').config();
 
 const REDIS_URL = process.env.REDIS_URL;
 
-const client = redis.createClient({url: REDIS_URL});
+const redis = new Redis(REDIS_URL);
 
-(async()=>await client.connect())();
-
-client.on('connect', () => console.log('Connected(Redis)'));
+redis.on('connect', () => console.log(`[Worker ${process.pid}] Connected(Redis)`));
   
-client.on('error', err => console.log('Redis Client Error', err));
+redis.on('error', err => console.log(`[Worker ${process.pid}] Redis Client Error`, err));
 
+redis.on("close", () => console.log(`[Worker ${process.pid}] Redis client closed`));
+  
 module.exports = {
-    redis:client
+    redis
 }; 
 

@@ -14,5 +14,6 @@
     "minPoolChannelRabbitMQ"    : 1,
     "daysNumberCheckAndUpdateProfileBuyer" : 5,
     "apiVersionFacebook" : "v16.0",
-    "platform" : "MESSENGER"
+    "platform" : "MESSENGER",
+    "fontendURL" : "http://localhost:8080"
 }
