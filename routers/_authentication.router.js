@@ -1,4 +1,6 @@
 const userModel = require("../models/user.model");
+const fanpageModel = require("../models/fanpage.model");
+const socketUtil = require("../util/socket");
 const crypto=require('crypto');
 const LINK = require("../util/links.json");
 const str2ab = require('string-to-arraybuffer');
@@ -71,6 +73,15 @@ module.exports = {
                     }
 
                     try{
+                        //save all room (userID) by fanpageid in redis
+                        let listFanpages=await fanpageModel.getListFanpageIDByUserID({user_id:user.user_id});
+                        for(let i=0; i<listFanpages.length; i++){
+                            let room=await socketUtil.getRoomByFanpageID(listFanpages[i]);
+                            if(!room){
+                                await socketUtil.saveRoomByFanpageID(listFanpages[i],user.user_id);
+                            }
+                        }
+
                         //Create and assign token
                         return res.status(200).json(tokenUtil.GetAccessTokenAndRefreshTokenOfUser(user));
 

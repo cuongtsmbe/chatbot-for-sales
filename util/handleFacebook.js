@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const openaiUtil  = require("./openai");
 const request   = require("request");
 const {redis}   = require("./redis");
+const socketUtil    = require("./socket");
 
 module.exports = {
     //handle Messenger text or file
@@ -28,6 +29,10 @@ module.exports = {
             
             //người quản trị or AI fanpage gửi qua buyer 
             if(checkFanpage.length > 0){
+                let roomByFanapageID=await socketUtil.getRoomByFanpageID(sender_psid);
+                if(!roomByFanapageID){
+                    socketUtil.emitMessageFromFanpageSend(roomByFanapageID,String(WebEvents.message.text));
+                }
                 
                 //khi người quản trị gõ "[on]" hoặc "[off]" thì thực hiện update active AI cho buyer
                 if(String(WebEvents.message.text).toLowerCase().includes("[on]")||String(WebEvents.message.text).toLowerCase().includes("[off]")){
@@ -95,6 +100,12 @@ module.exports = {
 
             let buyer_facebook_psid = sender_psid;
             let fanpage_id = WebEvents.recipient.id;
+
+            let room=await socketUtil.getRoomByFanpageID(fanpage_id);
+                    
+            if(!room){
+                socketUtil.emitMessageClient(room,WebEvents.message.text);
+            }
 
             // Định dạng chuỗi datetime cho MySQL
             let createdDate = new Date(); 
@@ -170,6 +181,13 @@ module.exports = {
 
                     //add order in DB
                     await orderModel.add(value);
+
+                    let room=await socketUtil.getRoomByFanpageID(fanpage_id);
+
+                    if(!room){
+                        socketUtil.emitOrder(room,WebEvents.message.text);
+                    }
+                    
                 }
 
                 //AI reply

@@ -112,5 +112,11 @@ module.exports={
         var result  = db.load(sql,values);
         return result;
     },
+
+    //get all fanpageID by userID
+    getListFanpageIDByUserID:function(condition){
+        let result  = db.load(`SELECT fanpage_id FROM ${TABLE} where user_id = ? `,[condition.user_id]);
+        return result;
+    }
     
 }
