@@ -24,8 +24,8 @@ module.exports = {
         var condition={
             fanpage_id      : req.params.fanpage_id,
             created_date    : req.query.created_date,
-            limit           : config.limitOrder,
-            offset          : config.limitOrder*(req.query.page-1),
+            limit           : config.limit.order,
+            offset          : config.limit.order*(req.query.page-1),
         };
 
         if(!condition.created_date){
@@ -48,7 +48,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitOrder)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.order)
         })
 
     },

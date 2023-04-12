@@ -2,14 +2,14 @@ const config    = require("../config/default.json");
 
 module.exports={
     getCurrentMessage: async (fanpage,user_psid) => {
-        const graphApiVersionUrl  = `https://graph.facebook.com/${config.apiVersionFacebook}`;
+        const graphApiVersionUrl  = `https://graph.facebook.com/${config.fb.api_version}`;
         // Tìm cuộc trò chuyện với một người dùng cụ thể
         var conversationsResponse = await axios.get(
             `${graphApiVersionUrl}/${fanpage.fanpage_id}/conversations`, 
             {
                 params: {
                     access_token    : fanpage.key_fanpage,
-                    platform        : config.platform,
+                    platform        : config.fb.platform,
                     user_id         : user_psid
                 }
             }

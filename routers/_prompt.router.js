@@ -22,8 +22,8 @@ module.exports = {
 
         var condition={
             fanpage_id  :req.params.fanpage_id,
-            limit       :config.limitPrompt,
-            offset      :config.limitPrompt*(req.query.page-1),
+            limit       :config.limit.prompt,
+            offset      :config.limit.prompt*(req.query.page-1),
         };
 
         try{
@@ -42,7 +42,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitPrompt)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.prompt)
         })
 
     },

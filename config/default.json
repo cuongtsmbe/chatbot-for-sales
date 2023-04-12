@@ -1,19 +1,33 @@
 {
-    "limitUser"     :10,
-    "limitFanpage"  :5,
-    "limitConversation":10,
-    "limitBuyer"    :5,
-    "limitOrder"    :5,
-    "limitPrompt"   :5,
-    "queueCoversation"     : "conversation_queue",
-    "prefetchConsumerRabbitMQ"  : 0,
-    "consumerNumberInRabbitMQ"  : 2,
-    "maxPoolConnectionRabbitMQ" : 5,
-    "minPoolConnectionRabbitMQ" : 1,
-    "maxPoolChannelRabbitMQ"    : 10,
-    "minPoolChannelRabbitMQ"    : 1,
     "daysNumberCheckAndUpdateProfileBuyer" : 5,
-    "apiVersionFacebook" : "v16.0",
-    "platform" : "MESSENGER",
-    "fontendURL" : "http://localhost:8080"
+    "fontendURL" : "http://localhost:8080",
+    "rabbitMQ" : {
+        "consumer": {         
+            "prefetch"   : 0 ,
+            "number"     : 2
+        },
+        "connection" : {
+            "max"   : 5 ,
+            "min"   : 1
+        },
+        "channel"   : {
+            "max"   : 10,
+            "min"   : 1
+        },
+        "name_queue": {
+            "conversation" : "conversation_queue"
+        }      
+    },
+    "fb": {
+        "api_version" : "v16.0",
+        "platform": "MESSENGER"
+    },
+    "limit" :{
+        "user"      : 10,
+        "fanpage"   : 5,
+        "buyer"     : 5,
+        "order"     : 5,
+        "prompt"    : 5
+    }
+
 }

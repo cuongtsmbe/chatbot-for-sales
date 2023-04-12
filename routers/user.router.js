@@ -24,8 +24,8 @@ module.exports = {
         }
 
         var condition={
-            limit       :config.limitUser,
-            offset      :config.limitUser*(req.query.page-1),
+            limit       :config.limit.user,
+            offset      :config.limit.user*(req.query.page-1),
         };
 
         try{
@@ -44,7 +44,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitUser)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.user)
         })
 
     },
@@ -58,8 +58,8 @@ module.exports = {
         var condition={
             status          :req.query.status,
             phone_number    :req.query.phone_number,
-            limit           :config.limitUser,
-            offset          :config.limitUser*(req.query.page-1),
+            limit           :config.limit.user,
+            offset          :config.limit.user*(req.query.page-1),
         };
 
         if(!condition.status || !condition.phone_number){
@@ -87,7 +87,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitUser)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.user)
         })
     },
 

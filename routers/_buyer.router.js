@@ -18,8 +18,8 @@ module.exports = {
 
         var condition={
             fanpage_id      :req.params.fanpage_id,
-            limit           :config.limitBuyer,
-            offset          :config.limitBuyer*(req.query.page-1),
+            limit           :config.limit.buyer,
+            offset          :config.limit.buyer*(req.query.page-1),
         };
 
         try{
@@ -38,7 +38,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitBuyer)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.buyer)
         })
 
     },
@@ -52,8 +52,8 @@ module.exports = {
         var condition={
             fanpage_id      :req.params.fanpage_id,
             active          :req.params.active,
-            limit           :config.limitBuyer,
-            offset          :config.limitBuyer*(req.query.page-1),
+            limit           :config.limit.buyer,
+            offset          :config.limit.buyer*(req.query.page-1),
         };
 
         if (String(condition.active).toLowerCase() != "true" && String(condition.active).toLowerCase() != "false") {
@@ -82,7 +82,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitBuyer)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.buyer)
         })
 
     },

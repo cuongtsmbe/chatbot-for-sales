@@ -26,8 +26,8 @@ module.exports = {
         }
 
         var condition={
-            limit       :config.limitFanpage,
-            offset      :config.limitFanpage*(req.query.page-1),
+            limit       :config.limit.fanpage,
+            offset      :config.limit.fanpage*(req.query.page-1),
         };
 
         try{
@@ -46,7 +46,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitFanpage)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.fanpage)
         })
 
     },
@@ -60,8 +60,8 @@ module.exports = {
         var condition={
             user_id                 : req.params.user_id,
             status                  : req.params.status,
-            limit                   : config.limitFanpage,
-            offset                  : config.limitFanpage*(req.query.page-1)
+            limit                   : config.limit.fanpage,
+            offset                  : config.limit.fanpage*(req.query.page-1)
         };
 
         try{
@@ -80,7 +80,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitFanpage)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.fanpage)
         })
 
     },
@@ -95,8 +95,8 @@ module.exports = {
             payment_due_date_start  : req.query.payment_due_date_start,
             payment_due_date_end    : req.query.payment_due_date_end,
             name                    : req.query.name,
-            limit                   : config.limitFanpage,
-            offset                  : config.limitFanpage*(req.query.page-1),
+            limit                   : config.limit.fanpage,
+            offset                  : config.limit.fanpage*(req.query.page-1),
             status                  : req.query.status
         };
 
@@ -116,7 +116,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitFanpage)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.fanpage)
         })
 
     },

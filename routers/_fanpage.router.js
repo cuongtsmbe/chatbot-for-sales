@@ -20,8 +20,8 @@ module.exports = {
         var condition={
             user_id                 : req.user.user_id,
             status                  : req.params.status,
-            limit                   : config.limitFanpage,
-            offset                  : config.limitFanpage*(req.query.page-1)
+            limit                   : config.limit.fanpage,
+            offset                  : config.limit.fanpage*(req.query.page-1)
         };
 
         try{
@@ -49,7 +49,7 @@ module.exports = {
             data:result,
             countAll:count[0],
             PageCurrent:req.query.page,
-            TotalPage:Math.ceil(1.0*count[0].count/config.limitFanpage)
+            TotalPage:Math.ceil(1.0*count[0].count/config.limit.fanpage)
         })
 
     },

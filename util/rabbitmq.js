@@ -41,15 +41,15 @@ const channelFactory =  {
 
 //create connect pool rabbitMQ
 const connectionPool = createPool(connectionFactory, {
-    max: config.maxPoolConnectionRabbitMQ,
-    min: config.minPoolConnectionRabbitMQ,
+    max: config.rabbitMQ.connection.max,
+    min: config.rabbitMQ.connection.min,
     idleTimeoutMillis:10000
 });
 
 //create channel pool rabbitMQ
 const channelPool = createPool(channelFactory,{
-    max: config.maxPoolChannelRabbitMQ,
-    min: config.minPoolChannelRabbitMQ, 
+    max: config.rabbitMQ.channel.max,
+    min: config.rabbitMQ.channel.min, 
 });
 
 
@@ -70,14 +70,14 @@ module.exports = {
         try{
             //lấy channel từ pool channel
             const channel = await channelPool.acquire();
-            await channel.assertQueue(config.queueCoversation, { 
+            await channel.assertQueue(config.rabbitMQ.name_queue.conversation, { 
                 // sử dụng cùng một cấu hình với producer,đảm bảo tính bền vững và đáng tin cậy của hệ thống
                 durable: true 
             });
-            await channel.prefetch(config.prefetchConsumerRabbitMQ); // chỉ định số lượng tin nhắn tối đa trên consumer này
-            console.log(`[Worker ${process.pid}] Waiting for messages in %s. To exit, press CTRL+C `, config.queueCoversation);
+            await channel.prefetch(config.rabbitMQ.consumer.prefetch); // chỉ định số lượng tin nhắn tối đa trên consumer này
+            console.log(`[Worker ${process.pid}] Waiting for messages in %s. To exit, press CTRL+C `, config.rabbitMQ.name_queue.conversation);
             await channel.consume(
-                config.queueCoversation,
+                config.rabbitMQ.name_queue.conversation,
                 async (msg) => {
                     try{
                         // xử lý tin nhắn
@@ -128,11 +128,11 @@ module.exports = {
         try {
             //lấy channel từ pool channel
             const channel = await channelPool.acquire();
-            await channel.assertQueue(config.queueCoversation, { 
+            await channel.assertQueue(config.rabbitMQ.name_queue.conversation, { 
                 //create queue with durable:true ,queue sẽ được lưu trữ trên đĩa cứng và không bị mất nếu RabbitMQ server bị sập hoặc khởi động lại.
                 durable: true 
             });
-            channel.sendToQueue(config.queueCoversation, Buffer.from(msg), { 
+            channel.sendToQueue(config.rabbitMQ.name_queue.conversation, Buffer.from(msg), { 
                 //lưu dữ tin nhắn vào đĩa cứng trc khi gửi cho consumer để tránh mất khi rabbitMQ có vấn đề
                 persistent: true 
             });

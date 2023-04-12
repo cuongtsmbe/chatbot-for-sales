@@ -11,14 +11,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 
-if(config.maxPoolConnectionRabbitMQ<=config.consumerNumberInRabbitMQ){
-    console.log("**Phải đặt maxPoolConnectionRabbitMQ > consumerNumberInRabbitMQ **");
+if(config.rabbitMQ.connection.max<=config.rabbitMQ.consumer.number){
+    console.log("**Phải đặt connection.max(rabbitmq) > consumer.number **");
     console.log("*Nguyên nhân vì có thể consumer sẽ có thể giữ hết connection và không release dẫn đến rabbitmq không hoạt động*");
 }
 
 
 //create consumer listen queue in rabbitMQ
-for(let i=0;i<config.consumerNumberInRabbitMQ;i++){
+for(let i=0;i<config.config.rabbitMQ.consumer.number;i++){
     rabbitMQ.consumerRabbitMQ(i);
 }
 
