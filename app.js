@@ -18,7 +18,7 @@ if(config.rabbitMQ.connection.max<=config.rabbitMQ.consumer.number){
 
 
 //create consumer listen queue in rabbitMQ
-for(let i=0;i<config.config.rabbitMQ.consumer.number;i++){
+for(let i=0;i<config.rabbitMQ.consumer.number;i++){
     rabbitMQ.consumerRabbitMQ(i);
 }
 

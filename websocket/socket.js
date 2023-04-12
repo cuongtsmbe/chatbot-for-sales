@@ -15,8 +15,6 @@ const subClient = redis.duplicate();
 
 io.adapter(createAdapter(pubClient, subClient));
 
-const { setupWorker } = require("@socket.io/sticky");
-
 io.use(async (socket, next) => {
   const userID = socket.handshake.auth.userID;
   if (!userID) {
@@ -31,7 +29,6 @@ io.on("connection", async (socket) => {
     socket.on("disconnect", async () => {});
 });
 
-// setup connection with the primary process
-setupWorker(io);
-
-module.exports = io;
+module.exports = {
+    io
+}; 
