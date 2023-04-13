@@ -63,7 +63,7 @@ services:
       - "6379:6379"
     volumes: 
       - ~/redis_data_test:/data
-      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - bot-network
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
