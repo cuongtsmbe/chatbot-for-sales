@@ -1,6 +1,6 @@
 const fanpageModel = require("../models/fanpage.model");
 const LINK = require("../util/links.json");
-const conversationUtil = require("../util/_conversation");
+const conversationUtil = require("../util/conversation");
 const validate  = require("../util/validation"); 
 
 module.exports = {
