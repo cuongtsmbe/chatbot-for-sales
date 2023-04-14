@@ -6,6 +6,10 @@ const openaiUtil  = require("./openai");
 const request   = require("request");
 const {redis}   = require("./redis");
 const socketUtil    = require("./socket");
+require('dotenv').config();
+
+const FB_APP_ID = process.env.FB_APP_ID;
+const FB_APP_SECRET = process.env.FB_APP_SECRET;
 
 module.exports = {
     //handle Messenger text or file
@@ -206,8 +210,6 @@ module.exports = {
                     "text": AIresponse
                 }
             } else if (WebEvents.attachments) {
-                // Get the URL of the message attachment
-                // reponse for image or ..
                 let attachment_url = WebEvents.attachments[0].payload.url;
                 response = {
                     "attachment": {
@@ -233,7 +235,6 @@ module.exports = {
 
     // Sends response messages via the Send API
     callSendAPI: function(sender_psid, response ,PAGE_ACCESS_TOKEN) {
-        // Construct the message body
         let request_body = {
         "recipient": {
             "id": sender_psid
@@ -265,7 +266,7 @@ module.exports = {
                 method: 'GET'
             };
             let data=null;
-            data = await this.getProfileData(options);
+            data = await this.sendRequest(options);
             return data;
         }catch(e){
             console.log(e);
@@ -273,8 +274,78 @@ module.exports = {
         }
     },
 
-    //promise get profile facebook user from options
-    getProfileData :function(options){
+    //get LONG-LIVED-USER-ACCESS-TOKEN
+    getLongLiveUserAccessToken:async function(SHORT_LIVE_ACCESS_TOKEN){
+        try{
+            const options = {
+                url: `https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=${FB_APP_ID}&client_secret=${FB_APP_SECRET}&fb_exchange_token=${SHORT_LIVE_ACCESS_TOKEN}`,
+                method: 'GET'
+            };
+            let data=null;
+            data = await this.sendRequest(options);
+            return data.access_token;
+        }catch(e){
+            console.log(e);
+            return null;
+        }
+    },
+
+    //get page accesstoken no expiration time
+    getPageAccessTokenLongLive:async function(PAGE_ID,SHORT_LIVE_ACCESS_TOKEN){
+        try{
+            let userLongLiveAccessToken = await this.getLongLiveUserAccessToken(SHORT_LIVE_ACCESS_TOKEN);
+            if(!userLongLiveAccessToken){
+                let appsecret_proof = this.getAppSecretProof(userLongLiveAccessToken);
+                const options = {
+                    url: `https://graph.facebook.com/${PAGE_ID}?fields=access_token&access_token=${userLongLiveAccessToken}&appsecret_proof=${appsecret_proof}`,
+                    method: 'GET'
+                };
+                let data=null;
+                data = await this.sendRequest(options);
+                return data.access_token;
+            }
+        }catch(e){
+            console.log(e);
+        }
+        return null;
+    },
+
+    //register event webhooks for fanpage id
+    connectWebhooksWithFanpage:async function(PAGE_ID,SHORT_LIVE_ACCESS_TOKEN){
+        try{
+            let pageAccessToken = await this.getPageAccessTokenLongLive(PAGE_ID,SHORT_LIVE_ACCESS_TOKEN);
+            if(!pageAccessToken){
+                let appsecret_proof = this.getAppSecretProof(pageAccessToken);
+                const options = {
+                    url: `https://graph.facebook.com/${PAGE_ID}/subscribed_apps?subscribed_fields=messages&access_token=${pageAccessToken}&appsecret_proof=${appsecret_proof}`,
+                    method: 'POST'
+                };
+                let data=null;
+                data = await this.sendRequest(options);
+
+                return data.success==true || data.success === "true" ;
+            }
+
+        }catch(e){
+            console.log(e);
+        }
+
+        return false;
+    },
+
+    getAppSecretProof:function(access_token){
+        const crypto = require('crypto');
+        const app_secret = FB_APP_SECRET;
+        
+        const hmac = crypto.createHmac('sha256', app_secret);
+        hmac.update(access_token);
+        const appsecret_proof = hmac.digest('hex');
+
+        console.log(appsecret_proof);
+        return appsecret_proof;
+    },
+
+    sendRequest :function(options){
         return new Promise((resolve, reject) => {
             request(options, (error, response, body) => {
                 if (!error && response.statusCode === 200) {
@@ -288,3 +359,11 @@ module.exports = {
     }
 
 }
+
+
+/**
+ * 
+ * get accesstoken  : https://developers.facebook.com/docs/pages/access-tokens
+ * register webhooks: https://developers.facebook.com/docs/messenger-platform/webhooks#k-t-n-i--ng-d-ng
+ * 
+ * **/
