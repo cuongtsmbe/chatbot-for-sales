@@ -237,10 +237,16 @@ module.exports = {
                         message:`delete ${condition.fanpage_id} not success`
                     })
             }
+            
+            let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+            if(!resUnsub){
+                resUnsub="unsubscribe from page webhooks fail."
+            }
             return  res.status(200).json({
                         status:20,
-                        message:`delete ${condition.fanpage_id} success`
-                    })
+                        message:`delete ${condition.fanpage_id} success`,
+                        messageUnsubscribe:resUnsub
+                    });
         }catch(e){
             console.log(e);
             return res.status(500).json({

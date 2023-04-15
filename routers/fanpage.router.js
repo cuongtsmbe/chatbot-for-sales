@@ -5,7 +5,7 @@ const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 const { validate: validateUuid } = require("uuid");
 const {validateFanpageInput} = require("../util/validation");
-
+const graphFacebook = require("../util/graphFacebook");
 
 module.exports = {
     fanpageRouters:function(app){
@@ -14,6 +14,7 @@ module.exports = {
         app.get(    LINK.ADMIN.FANPAGE_GET_BY_CONDITION                     ,this.getByCondition);
         app.get(    LINK.ADMIN.FANPAGE_GET_DETAILS_BY_ID                    ,this.getOneByFanpageID);
         app.post(   LINK.ADMIN.FANPAGE_ADD_NEW                              ,this.add);
+        app.post(   LINK.ADMIN.FANPAGE_UNSUBSCRIBE_WEBHOOKS                 ,this.unsubscribeFromPageWebhooks);
         app.put(    LINK.ADMIN.FANPAGE_UPDATE_BY_ID                         ,this.update);
         app.put(    LINK.ADMIN.FANPAGE_UPDATE_ACTIVE_BY_ID                  ,this.updateActive);
         app.delete( LINK.ADMIN.FANPAGE_DELETE_BY_ID                         ,this.delete);
@@ -252,7 +253,37 @@ module.exports = {
         
     },
 
+  
+    unsubscribeFromPageWebhooks:async function(req,res,next){
+        var condition={
+                fanpage_id              :req.params.fanpage_id
+        }
 
+         //check fanpage id in DB
+         var dataFanpage = await fanpageModel.getOne({fanpage_id:condition.fanpage_id});
+
+         if(dataFanpage.length==0){
+             return res.status(400).json({
+                 code:41,
+                 message:`Them khong thanh cong. fanpage ${condition.fanpage_id} isn't exist`
+             });
+         }
+        
+        let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+
+        if(!resUnsub){
+            return res.status(500).json({
+                code:50,
+                message:"unsubscribe from page webhooks fail.",
+            });
+        }
+
+        return  res.status(200).json({
+            status:20,
+            messageUnsubscribe:resUnsub
+        })
+
+    },
 
     //update fanpage value by fanpage_id 
     update:async function(req,res,next){
@@ -462,17 +493,23 @@ module.exports = {
         };
 
         try{
+            let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+            if(!resUnsub){
+                resUnsub="unsubscribe from page webhooks fail."
+            }
             var result=await fanpageModel.update(condition,value);
 
             if(result.length==0 || result.affectedRows==0){
                 return res.status(400).json({
                         code:41,
-                        message:`delete ${condition.fanpage_id} not success`
+                        message:`delete ${condition.fanpage_id} not success`,
+                        messageUnsubscribe:resUnsub
                     })
             }
             return  res.status(200).json({
                         status:20,
-                        message:`delete ${condition.fanpage_id} success`
+                        message:`delete ${condition.fanpage_id} success`,
+                        messageUnsubscribe:resUnsub
                     })
         }catch(e){
             console.log(e);
