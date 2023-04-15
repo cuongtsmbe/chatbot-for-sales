@@ -43,3 +43,6 @@ require("./routers/user.router").userRouters(app);
 require("./routers/fanpage.router").fanpageRouters(app);
 require("./routers/limit_fanpage.router").limitFanpageRouters(app);
 
+module.exports={
+  app
+}
