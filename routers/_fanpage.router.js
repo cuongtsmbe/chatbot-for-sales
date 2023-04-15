@@ -1,11 +1,14 @@
 const fanpageModel = require("../models/fanpage.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
+const graphFacebook = require("../util/graphFacebook");
 
 module.exports = {
     fanpageRouters:function(app){
         app.get(    LINK.CLIENT.FANPAGE_GET_BY_STATUS                ,this.getByStatusAndUserID);
         app.get(    LINK.CLIENT.FANPAGE_GET_ONE_BY_FANPAGE_ID        ,this.getOneByUserIDAndFanpageID);
+        app.get(    LINK.CLIENT.FANPAGE_GET_ALL_FANPAGE_MANAGED      ,this.getAllFanpageManageByUserFB);
+        app.post(   LINK.CLIENT.FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID  ,this.registerWebhooksForFanpageID);
         app.put(    LINK.CLIENT.FANPAGE_UPDATE_ACTIVE_BY_ID          ,this.updateActiveByUserIDAndFanpageID);
         app.delete( LINK.CLIENT.FANPAGE_DELETE_ID                    ,this.deleteByUserIDAndFanpageID);
     },
@@ -75,6 +78,68 @@ module.exports = {
             code:20,
             data:result
         })
+    },
+
+    //lấy các fanpage được quản lý bởi user_access_token
+    getAllFanpageManageByUserFB:async function(req,res,next){
+        var condition= {
+            user_short_live_access_token: req.query.user_short_live_access_token
+        };
+
+        if(!condition.user_short_live_access_token){ 
+            return res.status(400).json({
+                code:40,
+                data:"token is empty . please check token and try again."
+            });
+        }
+
+        var result=await graphFacebook.getListFanpagesManagedByUserAccesstoken(condition.user_short_live_access_token);
+
+        if(result==null){
+            return res.status(500).json({
+                code:50,
+                data:"server error . Try late ."
+            });
+        }
+
+        return res.status(200).json({
+            code:20,
+            data:result
+        });
+    },
+
+    registerWebhooksForFanpageID:async function(req,res,next){
+        var condition= {
+            user_short_live_access_token: req.body.user_short_live_access_token,
+            fanpage_id : req.params.fanpage_id
+        };
+
+        if(!condition.fanpage_id || !condition.user_short_live_access_token){
+            return res.status(400).json({
+                code:40,
+                data:"require fanpage_id and user short lived accesstoken."
+            });
+        }
+        var response = await graphFacebook.connectWebhooksWithFanpage(condition.fanpage_id,condition.user_short_live_access_token,null);
+        
+        if(response==null){
+            return res.status(500).json({
+                code:50,
+                data:"server error . Try late ."
+            });
+        }
+
+        if(response!=true){
+            return res.status(200).json({
+                code:21,
+                data:"register webhooks fail."
+            });
+        }
+
+        return res.status(200).json({
+            code:20,
+            data:"register webhooks success."
+        });
     },
 
     //update active by fanpage id and user id

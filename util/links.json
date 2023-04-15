@@ -7,7 +7,7 @@
 
         "AUTHENTICATION_CREATE_PASSWORD_HASH"   : "/authentication/create/hash/password",
 
-        "CONVERSATION_GET_MESSAGES" : "/conversations/get/messages",
+        "CONVERSATION_GET_MESSAGES" : "/conversations/messages",
         
         "BUYER_GET_BY_FANPAGE_ID" : "/buyers/fanpage/:fanpage_id",
     
@@ -42,6 +42,10 @@
         "FANPAGE_GET_BY_STATUS" : "/fanpages/status/:status",
 
         "FANPAGE_GET_ONE_BY_FANPAGE_ID" : "/fanpages/:fanpage_id",
+
+        "FANPAGE_GET_ALL_FANPAGE_MANAGED" : "/fanpages/user/manage",
+
+        "FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID" : "/fanpages/register/webhooks/:fanpage_id",
 
         "FANPAGE_UPDATE_ACTIVE_BY_ID"   : "/fanpages/:fanpage_id",
 
