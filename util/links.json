@@ -78,6 +78,8 @@
 
         "FANPAGE_ADD_NEW"   : "/admin/fanpages",
 
+        "FANPAGE_UNSUBSCRIBE_WEBHOOKS" : "/admin/fanpage/unsubscribe/:fanpage_id",
+
         "FANPAGE_UPDATE_BY_ID"  : "/admin/fanpages/:fanpage_id",
 
         "FANPAGE_UPDATE_ACTIVE_BY_ID" : "/admin/fanpages/:fanpage_id/active",
