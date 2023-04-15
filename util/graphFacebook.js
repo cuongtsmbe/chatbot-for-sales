@@ -195,7 +195,8 @@ module.exports = {
 
 /**
  * 
- * get accesstoken  : https://developers.facebook.com/docs/pages/access-tokens
- * register webhooks: https://developers.facebook.com/docs/messenger-platform/webhooks#k-t-n-i--ng-d-ng
+ * get accesstoken  :   https://developers.facebook.com/docs/pages/access-tokens
+ * register webhooks:   https://developers.facebook.com/docs/messenger-platform/webhooks#k-t-n-i--ng-d-ng
+ *                      https://developers.facebook.com/docs/graph-api/reference/page/subscribed_apps#ki-u-tr--v--2
  * 
  * **/
