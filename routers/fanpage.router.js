@@ -16,6 +16,7 @@ module.exports = {
         app.post(   LINK.ADMIN.FANPAGE_ADD_NEW                              ,this.add);
         app.post(   LINK.ADMIN.FANPAGE_UNSUBSCRIBE_WEBHOOKS                 ,this.unsubscribeFromPageWebhooks);
         app.put(    LINK.ADMIN.FANPAGE_UPDATE_BY_ID                         ,this.update);
+        app.put(    LINK.ADMIN.FANPAGE_UPDATE_STATUS_BY_ID                  ,this.updateStatusByFanpageID);
         app.put(    LINK.ADMIN.FANPAGE_UPDATE_ACTIVE_BY_ID                  ,this.updateActive);
         app.delete( LINK.ADMIN.FANPAGE_DELETE_BY_ID                         ,this.delete);
     },
@@ -224,7 +225,7 @@ module.exports = {
             if(page_access_token==null || page_access_token==false){
                 return  res.status(400).json({
                     code:40,
-                    message: "subscribe fanpage with webhooks fail.",
+                    message: "subscribe fanpage with webhooks fail.because maybe because 'key_fanpage' or FB api error.",
                 });
             }
 
@@ -269,28 +270,51 @@ module.exports = {
                 fanpage_id              :req.params.fanpage_id
         }
 
-         //check fanpage id in DB
-         var dataFanpage = await fanpageModel.getOne({fanpage_id:condition.fanpage_id});
+        try{
+            //check fanpage id in DB
+            var dataFanpage = await fanpageModel.getOne({fanpage_id:condition.fanpage_id});
 
-         if(dataFanpage.length==0){
-             return res.status(400).json({
-                 code:41,
-                 message:`Them khong thanh cong. fanpage ${condition.fanpage_id} isn't exist`
-             });
-         }
+            if(dataFanpage.length==0){
+                return res.status(400).json({
+                    code:41,
+                    message:`Them khong thanh cong. fanpage ${condition.fanpage_id} isn't exist`
+                });
+            }
         
-        let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+            let result=await fanpageModel.update(condition,{key_fanpage:"empty"});
 
-        if(!resUnsub){
+            if(result.length == 0 || result.affectedRows==0){
+                throw new Error("Server error.unsubscribe fanpage not success . Vì không thể cập nhật fanpage key thành 'empty'.");
+            }
+
+            var resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+
+            if(!resUnsub){
+                //unsubscribe fail . then need update key fanpage again.
+                let result=await fanpageModel.update(condition,{key_fanpage:dataFanpage[0].key_fanpage});
+
+                if(result.length == 0 || result.affectedRows == 0){
+                    throw new Error(`Server error.unsubscribe fanpage ${condition.fanpage_id} not success .But key fanpage had change to 'empty'.`);
+                }
+
+                return res.status(500).json({
+                    code:50,
+                    message:"unsubscribe from page webhooks fail.",
+                });
+
+            }
+        }catch(e){
+            console.log(e);
             return res.status(500).json({
-                code:50,
-                message:"unsubscribe from page webhooks fail.",
+                code:51,
+                message:`serve error. ${e}`,
             });
         }
+       
 
         return  res.status(200).json({
             status:20,
-            messageUnsubscribe:resUnsub
+            messageUnsubscribe:"unsubscribe from page webhooks success."
         })
 
     },
@@ -338,9 +362,9 @@ module.exports = {
             }
         }catch(e){
             console.log(e);
-            return res.status(500).json({
-                    code:50,
-                    message:"server error "
+            return res.status(400).json({
+                    code:40,
+                    message:"status require is number from 0 to 2. "
                 });
         }
 
@@ -355,9 +379,40 @@ module.exports = {
 
         } 
 
+       
+
         try{
             //cover string "true" or "false" to boolean
             value.active = JSON.parse(String(value.active).toLowerCase());
+
+            if(value.status!=1 && value.active==true) {
+                return  res.status(400).json({
+                    code:44,
+                    message: "If the status is not normal, then the 'active' field should be set to false.",
+                });
+            }
+
+            if(value.status==0){
+                let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+                if(resUnsub){
+                    value.key_fanpage="empty";
+                }else if(value.key_fanpage=="empty"){
+                    return  res.status(400).json({
+                        code:44,
+                        message: "unsubcsribe webhooks failed ,then the 'key_fanpage' field should be set to 'empty'.",
+                    });
+                }
+            }
+
+            if(value.status!=0 && value.key_fanpage=="empty"){
+                return  res.status(400).json({
+                    code:44,
+                    message: "If the status isn't delete, then the 'key_fanpage' field should not set to 'empty'.",
+                });
+            }
+
+
+
             //get all row in limit
             var resultLimit=await limit_fanpageModel.getAll();
 
@@ -423,7 +478,74 @@ module.exports = {
         
     },
 
+    updateStatusByFanpageID:async function(req,res,next){
+        var condition={
+            fanpage_id         :req.params.fanpage_id
+        }
+        var value={
+            status       :req.body.status,     
+        };
 
+        try{
+            //kiem tra status is number 
+            if(isNaN(value.status) || parseInt(value.status)<0 || parseInt(value.status)>2){
+                return res.status(400).json({
+                    code:40,
+                    message:"status require is number from 0 to 2."
+                });
+            }
+        }catch(e){
+            console.log(e);
+            return res.status(400).json({
+                    code:40,
+                    message:"status require is number from 0 to 2. "
+                });
+        }
+
+        try{
+           
+            if(value.status != 1){
+                value={
+                    status      : value.status,
+                    active      : false  
+                };
+            }
+
+            //delete
+            if(value.status==0){
+                let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+
+                if(resUnsub){
+                    value={
+                        active       : false,
+                        status       : 0,
+                        key_fanpage  : "empty"
+                    };
+                }
+            }
+
+            var result=await fanpageModel.update(condition,value);
+
+            if(result.length == 0 ||  result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update status of ${condition.fanpage_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update status of ${condition.fanpage_id} thanh cong`
+                    })
+        }catch(e){
+            console.log(e);
+            return res.status(500).json({
+                    code:50,
+                    message:"server error "
+                });
+        }
+
+       
+    },
 
     //update active by fanpage id
     updateActive:async function(req,res,next){
@@ -443,6 +565,26 @@ module.exports = {
         }
 
         try{
+            
+            var resultPageByID= await fanpageModel.getOne(condition);
+
+            if(resultPageByID.length == 0 ){
+                return res.status(400).json({
+                    code:44,
+                    message:`Fanpage ${condition.fanpage_id} not exist.`
+                });
+            }else{
+                resultPageByID = resultPageByID[0];
+
+                if(resultPageByID.status!=1){
+                    return res.status(400).json({
+                        code:45,
+                        message:`Fanpage ${condition.fanpage_id} can't not update .Because this fanpage had deleted/blocked.`
+                    });
+                }
+
+            }
+
             //cover string "true" or "false" to boolean
             value.active = JSON.parse(String(value.active).toLowerCase());
             //get all row in limit
@@ -506,6 +648,13 @@ module.exports = {
             let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
             if(!resUnsub){
                 resUnsub="unsubscribe from page webhooks fail."
+            }else{
+                value={
+                    active       : false,
+                    status       : 0,
+                    key_fanpage  : "empty"
+                };
+                resUnsub="unsubscribe from page webhooks success."
             }
             var result=await fanpageModel.update(condition,value);
 
