@@ -2,12 +2,14 @@ const fanpageModel = require("../models/fanpage.model");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 const graphFacebook = require("../util/graphFacebook");
+const {validateFanpageUserRegister} = require("../util/validation");
 
 module.exports = {
     fanpageRouters:function(app){
         app.get(    LINK.CLIENT.FANPAGE_GET_BY_STATUS                ,this.getByStatusAndUserID);
         app.get(    LINK.CLIENT.FANPAGE_GET_ONE_BY_FANPAGE_ID        ,this.getOneByUserIDAndFanpageID);
         app.get(    LINK.CLIENT.FANPAGE_GET_ALL_FANPAGE_MANAGED      ,this.getAllFanpageManageByUserFB);
+        app.post(   LINK.CLIENT.FANPAGE_ADD_NEW                      ,this.addNewFanpage);
         app.post(   LINK.CLIENT.FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID  ,this.registerWebhooksForFanpageID);
         app.put(    LINK.CLIENT.FANPAGE_UPDATE_ACTIVE_BY_ID          ,this.updateActiveByUserIDAndFanpageID);
         app.delete( LINK.CLIENT.FANPAGE_DELETE_ID                    ,this.deleteByUserIDAndFanpageID);
@@ -108,6 +110,139 @@ module.exports = {
         });
     },
 
+    addNewFanpage:async function(req,res,next){
+        var conditionConnect ={
+            user_short_live_access_token: req.body.user_short_live_access_token,
+            fanpage_id: req.body.fanpage_id
+        };
+
+        var value={
+            fanpage_id              :req.body.fanpage_id,
+            key_fanpage             :"empty",                        
+            key_open_ai             :req.body.key_open_ai,           
+            name                    :req.body.name,         
+            active                  :req.body.active,         
+            user_id                 :req.user.user_id,        
+            payment_due_date        :req.body.payment_due_date, 
+            status                  :1         
+        };
+        
+        if(!value.fanpage_id){
+            return res.status(400).json({
+                code:40,
+                message:"fanpage_id không được để trống ."
+            });
+        }
+
+        //set page access token  
+        if(!conditionConnect.fanpage_id || !conditionConnect.user_short_live_access_token){
+            value.key_fanpage="empty";
+        }else{
+            var page_access_token = await graphFacebook.subscribeToPageWebhooks(conditionConnect.fanpage_id,conditionConnect.user_short_live_access_token,null);
+            
+            if(page_access_token==null || page_access_token==false){
+                value.key_fanpage="empty";
+            }else{
+                value.key_fanpage=page_access_token;
+            }
+        }
+
+        //user_id(UUID) validate
+        if(validateUuid(value.user_id) !== true){
+                return  res.status(400).json({
+                    code:40,
+                    message: "Invalid user_id(UUID) format",
+                });
+        }
+
+        //validate input value
+        var validationResult=validateFanpageUserRegister(value);
+    
+        if ( validationResult !== true) {
+            return res.status(400).json({
+                code:40,
+                message:validationResult
+            });
+
+        } 
+
+        try{
+            //cover string "true" or "false" to boolean
+            value.active = JSON.parse(String(value.active).toLowerCase());
+            //get all row in limit
+            var resultLimit=await limit_fanpageModel.getAll();
+
+            if(resultLimit.length == 0 || resultLimit.length > 1){
+                //response if rows limit  > 1 or don't have data
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer for more information .",
+                });
+            }
+
+            var countFanpageActivedInServer = await fanpageModel.countAllFanpageActived();
+
+            //check fanpage active in server had limited 
+            if(value.active == true && countFanpageActivedInServer[0].count >= resultLimit[0].count){
+                return  res.status(400).json({
+                    code:43,
+                    message: "Had limited fanpage in server .Please contact developer/admin for more information .",
+                });
+            }
+
+            //check fanpage id in DB
+            var dataFanpage = await fanpageModel.getOne({fanpage_id:value.fanpage_id});
+
+            if(dataFanpage.length>0){
+                return res.status(400).json({
+                    code:41,
+                    message:`Them khong thanh cong. fanpage ${value.fanpage_id} had exist`
+                });
+            }
+
+            //check user_id exist in DB
+            var dataUser = await userModel.getOne({user_id:value.user_id});
+
+            if(dataUser.length==0){
+                return res.status(400).json({
+                    code:42,
+                    message:`Them khong thanh cong. user ${value.user_id} not exist`
+                });
+            }
+
+            var result=await fanpageModel.add(value);
+
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:44,
+                        message:"Them khong thanh cong"
+                    })
+            }
+            if(value.key_fanpage=="empty"){
+                return  res.status(200).json({
+                        status:21,
+                        message:"Them fanpage thanh cong",
+                        messageConnectWebhooks: "Chưa đăng kí webhooks cho fanpage."
+                    })
+            }
+
+            return  res.status(200).json({
+                    status:20,
+                    message:"Them fanpage thanh cong",
+                    messageConnectWebhooks: "Đăng kí webhooks cho fanpage thành công."
+                })
+           
+
+        }catch(e){
+            console.log(e);
+            return res.status(500).json({
+                    code:50,
+                    message:"server error "
+                });
+        }
+
+    },
+
     registerWebhooksForFanpageID:async function(req,res,next){
         var condition= {
             user_short_live_access_token: req.body.user_short_live_access_token,
@@ -120,7 +255,7 @@ module.exports = {
                 data:"require fanpage_id and user short lived accesstoken."
             });
         }
-        var response = await graphFacebook.connectWebhooksWithFanpage(condition.fanpage_id,condition.user_short_live_access_token,null);
+        var response = await graphFacebook.subscribeToPageWebhooks(condition.fanpage_id,condition.user_short_live_access_token,null);
         
         if(response==null){
             return res.status(500).json({
@@ -129,7 +264,7 @@ module.exports = {
             });
         }
 
-        if(response!=true){
+        if(response==false){
             return res.status(200).json({
                 code:21,
                 data:"register webhooks fail."

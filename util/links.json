@@ -47,6 +47,8 @@
 
         "FANPAGE_GET_ALL_FANPAGE_MANAGED" : "/fanpages/user/manage",
 
+        "FANPAGE_ADD_NEW"   : "/fanpages/user/add/new",
+
         "FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID" : "/fanpages/register/webhooks/:fanpage_id",
 
         "FANPAGE_UPDATE_ACTIVE_BY_ID"   : "/fanpages/:fanpage_id",
