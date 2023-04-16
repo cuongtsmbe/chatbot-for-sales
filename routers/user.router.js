@@ -4,6 +4,7 @@ const config    =require("../config/default.json");
 const { v4: uuidv4, validate: validateUuid } = require("uuid");
 const {validateRoleInput}    = require('../util/validation');
 const crypto=require('crypto');
+require('dotenv').config();
 
 module.exports = {
     userRouters:function(app){

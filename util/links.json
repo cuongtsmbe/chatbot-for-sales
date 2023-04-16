@@ -37,7 +37,9 @@
 
         "PROMPT_DELETE_BY_ID"   : "/prompts/:prompt_id",
 
-        "USER_GET_DETAILS_BY_USER_ID" : "/users",
+        "USER_GET_DETAILS_BY_USER_ID" : "/user",
+
+        "USER_REGISTER"   : "/user/register",
 
         "FANPAGE_GET_BY_STATUS" : "/fanpages/status/:status",
 

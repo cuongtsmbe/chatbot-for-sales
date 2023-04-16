@@ -5,6 +5,7 @@ const { setupPrimary } = require("@socket.io/cluster-adapter");
 const {app} = require("./app");
 const { setupWorker } = require("@socket.io/sticky");
 const { io } = require("./websocket/socket");
+require('dotenv').config();
 
 if (cluster.isMaster) {
     console.log(`[*Master* ${process.pid}] is running`);
