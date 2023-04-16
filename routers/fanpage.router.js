@@ -218,6 +218,16 @@ module.exports = {
                 });
             }
 
+            //connect webhooks and fanpage 
+            var page_access_token = await graphFacebook.subscribeToPageWebhooks(value.fanpage_id,null,value.key_fanpage);
+                
+            if(page_access_token==null || page_access_token==false){
+                return  res.status(400).json({
+                    code:40,
+                    message: "subscribe fanpage with webhooks fail.",
+                });
+            }
+
             //check user_id exist in DB
             var dataUser = await userModel.getOne({user_id:value.user_id});
 
