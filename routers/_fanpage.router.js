@@ -247,15 +247,45 @@ module.exports = {
     registerWebhooksForFanpageID:async function(req,res,next){
         var condition= {
             user_short_live_access_token: req.body.user_short_live_access_token,
-            fanpage_id : req.params.fanpage_id
+            fanpage_id                  : req.params.fanpage_id,
+            user_id                     : req.user.user_id
         };
 
         if(!condition.fanpage_id || !condition.user_short_live_access_token){
             return res.status(400).json({
                 code:40,
-                message:"require fanpage_id and user short lived accesstoken."
+                message:"require fanpage_id and user short lived access token."
             });
         }
+
+        try{
+
+            var resultGetOne= await fanpageModel.getOneByUserIDAndFanpageID({
+                fanpage_id          :condition.fanpage_id,
+                user_id             :condition.user_id
+            });  
+           
+            if(resultGetOne.length==0){
+                return res.status(400).json({
+                    code:42,
+                    message:`Not found fanpage ${condition.fanpage_id} .`
+                })
+            }
+
+            if(resultGetOne[0].status == 0){
+                return res.status(400).json({
+                    code:43,
+                    message:`register webhooks fail. Because fanpage ${condition.fanpage_id} had deleted.`
+                })
+            }
+        }catch(e){
+            console.log(e);
+            return res.status(500).json({
+                code:54,
+                message:`Error server.`
+            });
+        }
+       
         var page_access_token = await graphFacebook.subscribeToPageWebhooks(condition.fanpage_id,condition.user_short_live_access_token,null);
         
         if(page_access_token==null){
@@ -266,27 +296,24 @@ module.exports = {
         }
 
         if(page_access_token==false){
-            return res.status(200).json({
-                code:21,
+            return res.status(500).json({
+                code:53,
                 message:"register webhooks fail."
             });
         }
+  
 
         try{
-
             var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},{key_fanpage:page_access_token});
 
             if(result.length == 0 || result.affectedRows==0){
-                return res.status(500).json({
-                        code:51,
-                        message:`register webhooks success.But can't set key fanpage for this fanpage. Try again or report for admin.`
-                    });
+                throw new Error("throw new Error : update fanpage mysql fail of router FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID.");
             }
         }catch(e){
             console.log(e);
             return res.status(500).json({
                 code:52,
-                message:`Error server. register webhooks success.But can't set key fanpage for this fanpage. Try again or report for admin.`
+                message:`Register webhooks success.But can't set key fanpage for this fanpage. Try again or report for admin.`
             });
         }
 
@@ -401,7 +428,7 @@ module.exports = {
             if(resultGetOne[0].status==0){
                 return res.status(400).json({
                     code:43,
-                    message:`update fail. Because fanpage ${condition.fanpage_id} can't had deleted.`
+                    message:`update fail. Because fanpage ${condition.fanpage_id} could deleted.`
                 })
             }
        
