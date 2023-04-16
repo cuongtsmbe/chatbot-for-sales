@@ -12,6 +12,7 @@ module.exports = {
         app.post(   LINK.CLIENT.FANPAGE_ADD_NEW                      ,this.addNewFanpage);
         app.post(   LINK.CLIENT.FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID  ,this.registerWebhooksForFanpageID);
         app.put(    LINK.CLIENT.FANPAGE_UPDATE_ACTIVE_BY_ID          ,this.updateActiveByUserIDAndFanpageID);
+        app.put(    LINK.CLIENT.FANPAGE_UPDATE_OPENAIKEY_BY_ID       ,this.updateOpenAIKeyByUserIDAndFanpageID);
         app.delete( LINK.CLIENT.FANPAGE_DELETE_ID                    ,this.deleteByUserIDAndFanpageID);
     },
 
@@ -328,6 +329,60 @@ module.exports = {
             return  res.status(200).json({
                         status:20,
                         message:`update active of ${condition.fanpage_id} thanh cong`
+                    })
+
+        }catch(e){
+            console.log(e);
+            return res.status(500).json({
+                    code:50,
+                    message:"server error "
+                });
+        }
+
+      
+    },
+
+    //update openai key
+    updateOpenAIKeyByUserIDAndFanpageID:async function(req,res,next){
+        var condition={
+            fanpage_id          :req.params.fanpage_id,
+            user_id             :req.user.user_id
+        }
+        var value={
+            key_open_ai              :req.body.key_open_ai,      
+        };
+
+        if(!value.key_open_ai){
+            return res.status(400).json({
+                code:40,
+                message:"key_open_ai is required."
+            });
+        }
+
+        try{
+
+            //check data of user(account) exist in DB
+            var resultGetOne= await fanpageModel.getOneByUserIDAndFanpageID(condition);  
+           
+            if(resultGetOne.length==0){
+                //fanpage id not of user(account login) or fanpage_id not exist
+                return res.status(400).json({
+                    code:42,
+                    message:`update openai key of ${condition.fanpage_id} khong thanh cong`
+                })
+            }
+       
+            var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},value);
+
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:42,
+                        message:`update openai key of ${condition.fanpage_id} khong thanh cong`
+                    })
+            }
+            return  res.status(200).json({
+                        status:20,
+                        message:`update openai key of ${condition.fanpage_id} thanh cong`
                     })
 
         }catch(e){

@@ -51,7 +51,9 @@
 
         "FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID" : "/fanpages/register/webhooks/:fanpage_id",
 
-        "FANPAGE_UPDATE_ACTIVE_BY_ID"   : "/fanpages/:fanpage_id",
+        "FANPAGE_UPDATE_ACTIVE_BY_ID"   : "/fanpages/active/:fanpage_id",
+
+        "FANPAGE_UPDATE_OPENAIKEY_BY_ID"    : "/fanpages/openai/key/:fanpage_id",
 
         "FANPAGE_DELETE_ID" : "/fanpages/:fanpage_id"
 
