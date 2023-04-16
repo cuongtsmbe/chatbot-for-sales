@@ -181,8 +181,7 @@ module.exports = {
 
             let response = await axios(options);
             
-            return response.data;
-
+            return (response.data.success || response.data.success == "true") ? true : null;
         } catch (error) {
             console.error(error);
             return null;
@@ -198,5 +197,6 @@ module.exports = {
  * get accesstoken  :   https://developers.facebook.com/docs/pages/access-tokens
  * register webhooks:   https://developers.facebook.com/docs/messenger-platform/webhooks#k-t-n-i--ng-d-ng
  *                      https://developers.facebook.com/docs/graph-api/reference/page/subscribed_apps#ki-u-tr--v--2
+ * subcribe/unsubcribe: https://developers.facebook.com/docs/graph-api/reference/page/subscribed_apps
  * 
  * **/
