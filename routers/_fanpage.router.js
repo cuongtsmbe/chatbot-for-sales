@@ -253,22 +253,40 @@ module.exports = {
         if(!condition.fanpage_id || !condition.user_short_live_access_token){
             return res.status(400).json({
                 code:40,
-                data:"require fanpage_id and user short lived accesstoken."
+                message:"require fanpage_id and user short lived accesstoken."
             });
         }
-        var response = await graphFacebook.subscribeToPageWebhooks(condition.fanpage_id,condition.user_short_live_access_token,null);
+        var page_access_token = await graphFacebook.subscribeToPageWebhooks(condition.fanpage_id,condition.user_short_live_access_token,null);
         
-        if(response==null){
+        if(page_access_token==null){
             return res.status(500).json({
                 code:50,
-                data:"server error . Try late ."
+                message:"server error . Try late ."
             });
         }
 
-        if(response==false){
+        if(page_access_token==false){
             return res.status(200).json({
                 code:21,
-                data:"register webhooks fail."
+                message:"register webhooks fail."
+            });
+        }
+
+        try{
+
+            var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},{key_fanpage:page_access_token});
+
+            if(result.length == 0 || result.affectedRows==0){
+                return res.status(500).json({
+                        code:51,
+                        message:`register webhooks success.But can't set key fanpage for this fanpage. Try again or report for admin.`
+                    });
+            }
+        }catch(e){
+            console.log(e);
+            return res.status(500).json({
+                code:52,
+                message:`Error server. register webhooks success.But can't set key fanpage for this fanpage. Try again or report for admin.`
             });
         }
 
@@ -313,8 +331,16 @@ module.exports = {
             if(resultGetOne.length==0){
                 //fanpage id not of user(account login) or fanpage_id not exist
                 return res.status(400).json({
-                    code:42,
-                    message:`update active of ${condition.fanpage_id} khong thanh cong`
+                    code:44,
+                    message:`Not found fanpage ${condition.fanpage_id} .`
+                })
+            }
+
+            //fanpage had deteted/blocked
+            if(resultGetOne[0].status!=1){
+                return res.status(400).json({
+                    code:43,
+                    message:`update fail.Fanpage ${condition.fanpage_id} had deleted/blocked .`
                 })
             }
        
@@ -368,7 +394,14 @@ module.exports = {
                 //fanpage id not of user(account login) or fanpage_id not exist
                 return res.status(400).json({
                     code:42,
-                    message:`update openai key of ${condition.fanpage_id} khong thanh cong`
+                    message:`Not found fanpage ${condition.fanpage_id} .`
+                })
+            }
+
+            if(resultGetOne[0].status==0){
+                return res.status(400).json({
+                    code:43,
+                    message:`update fail. Because fanpage ${condition.fanpage_id} can't had deleted.`
                 })
             }
        
@@ -419,19 +452,28 @@ module.exports = {
                 })
             }
 
+            let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
+            if(!resUnsub){
+                resUnsub="unsubscribe from page webhooks fail."
+            }else{
+                value={
+                    active       : false,
+                    status       : 0,       // 0 is deteted
+                    key_fanpage  : "empty"
+                };
+                resUnsub="unsubscribe from page webhooks success."
+            }
+
             var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},value);
 
             if(result.length==0 || result.affectedRows==0){
                 return res.status(400).json({
                         code:41,
-                        message:`delete ${condition.fanpage_id} not success`
+                        message:`delete ${condition.fanpage_id} not success`,
+                        messageUnsubscribe:resUnsub
                     })
             }
-            
-            let resUnsub = await graphFacebook.unsubscribeFromPageWebhooks(condition.fanpage_id);
-            if(!resUnsub){
-                resUnsub="unsubscribe from page webhooks fail."
-            }
+           
             return  res.status(200).json({
                         status:20,
                         message:`delete ${condition.fanpage_id} success`,
