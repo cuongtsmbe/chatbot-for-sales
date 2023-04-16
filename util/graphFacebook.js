@@ -109,7 +109,7 @@ module.exports = {
             let response = await axios(options);
             let data = response.data;
 
-            return data.success == true || data.success === "true";
+            return (data.success == true || data.success === "true") ? PAGE_ACCESS_TOKEN : false;
 
         }catch(e){
             console.log(e);
