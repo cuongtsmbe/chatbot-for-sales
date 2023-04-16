@@ -88,6 +88,8 @@
 
         "FANPAGE_UPDATE_BY_ID"  : "/admin/fanpages/:fanpage_id",
 
+        "FANPAGE_UPDATE_STATUS_BY_ID" : "/admin/fanpages/:fanpage_id/status",
+
         "FANPAGE_UPDATE_ACTIVE_BY_ID" : "/admin/fanpages/:fanpage_id/active",
 
         "FANPAGE_DELETE_BY_ID" : "/admin/fanpages/:fanpage_id",
