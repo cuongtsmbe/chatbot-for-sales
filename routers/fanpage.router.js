@@ -307,7 +307,7 @@ module.exports = {
             console.log(e);
             return res.status(500).json({
                 code:51,
-                message:`serve error. ${e}`,
+                message:`serve error.`,
             });
         }
        
