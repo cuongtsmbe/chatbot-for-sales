@@ -20,7 +20,8 @@
     },
     "fb": {
         "api_version" : "v16.0",
-        "platform": "MESSENGER"
+        "platform": "MESSENGER",
+        "messageFields": ["message_deliveries","message_echoes","messages","messaging_postbacks"]
     },
     "limit" :{
         "user"      : 10,

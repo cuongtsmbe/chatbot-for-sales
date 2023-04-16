@@ -100,7 +100,7 @@ module.exports = {
                 url: `${graphUrl}/${PAGE_ID}/subscribed_apps`,
                 method: 'POST',
                 params: {
-                    subscribed_fields: 'messages',
+                    subscribed_fields: config.fb.messageFields.join(","),
                     access_token: PAGE_ACCESS_TOKEN,
                     appsecret_proof: appsecret_proof,
                 },
