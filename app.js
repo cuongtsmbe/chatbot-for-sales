@@ -42,6 +42,7 @@ require("./routers/_user.router").userRouters(app);
 require("./routers/user.router").userRouters(app);
 require("./routers/fanpage.router").fanpageRouters(app);
 require("./routers/limit_fanpage.router").limitFanpageRouters(app);
+require("./routers/facebook_app_subscriptions.router").facebookAppSubscriptions(app);
 
 module.exports={
   app

@@ -21,7 +21,11 @@
     "fb": {
         "api_version" : "v16.0",
         "platform": "MESSENGER",
-        "messageFields": ["message_deliveries","message_echoes","messages","messaging_postbacks"]
+        "messageFields": ["message_deliveries","message_echoes","messages","messaging_postbacks"],
+        "graphUrl" : "https://graph.facebook.com",
+        "webhooksCallBackUrl" : "https://server-domain.com/webhooks",
+        "object"  : "page",
+        "fieldsObject": ["message_deliveries","message_echoes","messages","messaging_postbacks"]
     },
     "limit" :{
         "user"      : 10,

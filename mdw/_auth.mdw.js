@@ -55,6 +55,9 @@ module.exports={
                 ||  req_url.includes(LINK.ADMIN.LIMIT_FANPAGE_ADD_NEW)
                 ||  req_url.includes(LINK.ADMIN.LIMIT_FANPAGE_UPDATE_BY_ID)
                 ||  req_url.includes(LINK.ADMIN.LIMIT_FANPAGE_DELETE_BY_ID)
+                ||  req_url.includes(LINK.ADMIN.FB_APP_SUBSCRIPTIONS_GET)
+                ||  req_url.includes(LINK.ADMIN.FB_APP_SUBSCRIPTIONS_SET)
+                ||  req_url.includes(LINK.ADMIN.FB_APP_SUBSCRIPTIONS_DELETE)
             ){
                 if( verified.role_type !== 'root' ){ 
                     //không được vào trang cua root  

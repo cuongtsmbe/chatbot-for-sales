@@ -5,7 +5,7 @@ const config    = require("../config/default.json");
 
 const FB_APP_ID = process.env.FB_APP_ID;
 const FB_APP_SECRET = process.env.FB_APP_SECRET;
-const graphUrl  = `https://graph.facebook.com`;
+const graphUrl  = config.fb.graphUrl;
 
 module.exports = {
 
@@ -164,7 +164,7 @@ module.exports = {
     },
 
 
-    //hủy đăng ký các webhooks của ứng dụng với một trang Facebook
+    //hủy đăng ký các webhooks của ứng dụng với một trang Facebook sử dụng app_access_token 
     unsubscribeFromPageWebhooks: async function(PAGE_ID) {
         try {
             let APP_ACCESS_TOKEN = await this.getAppAccessToken();

@@ -100,7 +100,13 @@
 
         "LIMIT_FANPAGE_UPDATE_BY_ID" : "/admin/limit/fanpage/:limit_fanpage_id",
 
-        "LIMIT_FANPAGE_DELETE_BY_ID" : "/admin/limit/fanpage/:limit_fanpage_id"
+        "LIMIT_FANPAGE_DELETE_BY_ID" : "/admin/limit/fanpage/:limit_fanpage_id",
+
+        "FB_APP_SUBSCRIPTIONS_GET"  : "/admin/app/subscriptions",
+
+        "FB_APP_SUBSCRIPTIONS_SET"  : "/admin/app/subscriptions/set",
+
+        "FB_APP_SUBSCRIPTIONS_DELETE" : "/admin/app/subscriptions"
         
     }
 }
