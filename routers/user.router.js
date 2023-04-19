@@ -5,6 +5,7 @@ const { v4: uuidv4, validate: validateUuid } = require("uuid");
 const {validateRoleInput}    = require('../util/validation');
 const crypto=require('crypto');
 require('dotenv').config();
+const {redis}   = require("../util/redis");
 
 module.exports = {
     userRouters:function(app){
@@ -194,6 +195,18 @@ module.exports = {
                             message:"Them khong thanh cong"
                         })
                 }
+
+                try{
+                    //save status,role_type user_id in redis
+                    await redis.set(`user_id_${value.user_id}`, JSON.stringify({
+                        user_id   : value.user_id,
+                        role_type : value.role_type,
+                        status    : value.status
+                    }));
+                }catch(e){
+                    console.log(e);
+                }
+
                 return  res.status(200).json({
                             status:20,
                             message:"Them thanh cong"
@@ -316,6 +329,18 @@ module.exports = {
                         message:`update ${condition.user_id} khong thanh cong`
                     })
             }
+
+            try{
+                //save status,role_type user_id in redis
+                await redis.set(`user_id_${condition.user_id}`, JSON.stringify({
+                    user_id     : condition.user_id,
+                    role_type   : value.role_type,
+                    status      : value.status
+                }));
+            }catch(e){
+                console.log(e);
+            }
+
             return  res.status(200).json({
                         status:20,
                         message:`update ${condition.user_id} thanh cong`
@@ -415,6 +440,19 @@ module.exports = {
                         message:`update role ${condition.user_id} khong thanh cong`
                     })
             }
+
+            try{
+                //save status,role_type user_id in redis
+                await redis.set(`user_id_${condition.user_id}`, JSON.stringify({
+                    user_id     : condition.user_id,
+                    role_type   : value.role_type,
+                    status      : userResult.status
+                }));
+            }catch(e){
+                console.log(e);
+            }
+
+
             return  res.status(200).json({
                         status:20,
                         message:`update role ${condition.user_id} thanh cong`
@@ -488,6 +526,18 @@ module.exports = {
                         message:`delete ${condition.user_id} not success`
                     })
             }
+
+            try{
+                //save status,role_type user_id in redis
+                await redis.set(`user_id_${condition.user_id}`, JSON.stringify({
+                    user_id     : condition.user_id,
+                    role_type   : userResult.role_type,
+                    status      : value.status
+                }));
+            }catch(e){
+                console.log(e);
+            }
+
             return  res.status(200).json({
                         status:20,
                         message:`delete ${condition.user_id}  success`

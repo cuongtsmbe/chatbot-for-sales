@@ -113,7 +113,6 @@ module.exports = {
 
     //create accesstoken from refreshtoken
     createAccessToken:async function(req,res,next){
-        console.log("try");
         //kiểm tra  refreshToken
         try{
             var refreshToken=req.body.refreshToken;
