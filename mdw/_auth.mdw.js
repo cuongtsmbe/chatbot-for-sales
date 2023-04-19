@@ -1,10 +1,11 @@
 const tokenUtil = require("../util/token");
 require('dotenv').config();
 const LINK = require("../util/links.json");
+const {redis}   = require("./redis");
 
 module.exports={
     //Authorization middleware 
-    authorize:function (req, res, next) {
+    authorize:async function (req, res, next) {
         let token = req.header('Authorization');
         let req_url = req.originalUrl;
 
@@ -31,7 +32,19 @@ module.exports={
             }
             const verified = tokenUtil.verifyToken(token, process.env.TOKEN_SECRET_ACCESSTOKEN); 
 
-            //check status account 
+            let resultChecked = await this.compareTokenWithRedis(verified);
+            
+            if(resultChecked==false){
+                return res.status(403).json({
+                    code: 43,
+                    message: "Please login againt. status or role of account changed by admin."
+                });
+            }
+
+            //error 
+            if(resultChecked!=true && result!=false){
+                throw new Error(resultChecked);
+            }
 
             if(verified.status == 0){
                 return res.status(403).send("The account does not exist on the system.");
@@ -93,5 +106,24 @@ module.exports={
                 });
             }
         }
+    },
+    
+    compareTokenWithRedis:async function(verified){
+        try{
+            let userInRedis = await redis.get(`user_id_${verified.user_id}`);
+        
+            if(userInRedis!=null){
+                userInRedis = JSON.parse(userInRedis);
+                if(userInRedis.status != verified.status || userInRedis.role_type != verified.role_type){
+                    // status và role_type đã bị thay đổi trong DB
+                    return false;
+                }
+                return true;
+            }
+        }catch(e){
+            console.log(e);
+            return "Error in checkTokenWithRedis function in file auth mdw.";
+        }
+        return false;
     }
 }
