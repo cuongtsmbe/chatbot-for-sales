@@ -55,6 +55,8 @@
 
         "FANPAGE_UPDATE_OPENAIKEY_BY_ID"    : "/fanpages/openai/key/:fanpage_id",
 
+        "FANPAGE_RESTORE_BY_ID"    : "/fanpages/restore/:fanpage_id",
+
         "FANPAGE_DELETE_ID" : "/fanpages/:fanpage_id"
 
     },

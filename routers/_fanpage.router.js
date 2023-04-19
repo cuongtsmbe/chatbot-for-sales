@@ -13,6 +13,7 @@ module.exports = {
         app.post(   LINK.CLIENT.FANPAGE_REGISTER_WEBHOOKS_BY_PAGEID  ,this.registerWebhooksForFanpageID);
         app.put(    LINK.CLIENT.FANPAGE_UPDATE_ACTIVE_BY_ID          ,this.updateActiveByUserIDAndFanpageID);
         app.put(    LINK.CLIENT.FANPAGE_UPDATE_OPENAIKEY_BY_ID       ,this.updateOpenAIKeyByUserIDAndFanpageID);
+        app.put(    LINK.CLIENT.FANPAGE_RESTORE_BY_ID                ,this.restoreFanpageHadDeletedByUserIDAndFanpageID);
         app.delete( LINK.CLIENT.FANPAGE_DELETE_ID                    ,this.deleteByUserIDAndFanpageID);
     },
 
@@ -454,6 +455,55 @@ module.exports = {
         }
 
       
+    },
+
+    //Khôi phục lại fanpage đã deleted
+    restoreFanpageHadDeletedByUserIDAndFanpageID: async function(req,res,next){
+        var condition={
+            fanpage_id          :req.params.fanpage_id,
+            user_id             :req.user.user_id
+        }
+
+        var value={
+            active       : false,
+            status       : 1,       
+        };
+
+        try{
+            //check data of user(account login) exist in DB
+            var resultGetOne= await fanpageModel.getOneByUserIDAndFanpageID(condition);  
+            
+            if(resultGetOne.length==0){
+                //fanpage id not of user(account login) or fanpage_id not exist
+                return res.status(400).json({
+                    code:41,
+                    message:`fanpage ${condition.fanpage_id} not exist.`
+                })
+            }
+
+            var result=await fanpageModel.update({fanpage_id:condition.fanpage_id},value);
+
+            if(result.length==0 || result.affectedRows==0){
+                return res.status(400).json({
+                        code:41,
+                        message:`restore ${condition.fanpage_id} not success`,
+                        messageUnsubscribe:resUnsub
+                    })
+            }
+           
+            return  res.status(200).json({
+                        status:20,
+                        message:`restore ${condition.fanpage_id} success`,
+                        messageUnsubscribe:resUnsub
+                    });
+        }catch(e){
+            console.log(e);
+            return res.status(500).json({
+                    code:50,
+                    message:"server error "
+                });
+        }
+
     },
 
     //delete fanpage by fanpage_id and user id (change status to 0 and active is false) 
