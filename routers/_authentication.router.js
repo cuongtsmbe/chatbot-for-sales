@@ -7,7 +7,7 @@ const str2ab = require('string-to-arraybuffer');
 const tokenUtil = require("../util/token");
 const { v4: uuidv4 } = require("uuid");
 require('dotenv').config();
-
+const authUtil   = require("../util/auth");
 
 module.exports = {
     authRouters:function(app){
@@ -82,6 +82,18 @@ module.exports = {
                             }
                         }
 
+                        try{
+                            //save status,role_type user_id in redis
+                            await redis.set(`user_id_${user.user_id}`, JSON.stringify({
+                                user_id   : user.user_id,
+                                role_type : user.role_type,
+                                status    : user.status
+                            }));
+                        }catch(e){
+                            console.log(e);
+                        }
+        
+
                         //Create and assign token
                         return res.status(200).json(tokenUtil.GetAccessTokenAndRefreshTokenOfUser(user));
 
@@ -126,7 +138,21 @@ module.exports = {
 
             //verified resfreshToken 
             const verified = tokenUtil.verifyToken(refreshToken, process.env.TOKEN_SECRET_REFRESHTOKEN);  
+          
+            let resultChecked = await authUtil.compareTokenWithRedis(verified);
             
+            if(resultChecked==false){
+                return res.status(403).json({
+                    code: 43,
+                    message: "Please login againt. status or role of account changed in DB."
+                });
+            }
+
+            //error 
+            if(resultChecked!=true && result!=false){
+                throw new Error(resultChecked);
+            }
+
             try{
                 return res.status(200).json(tokenUtil.GetAccessToken(verified));
             }catch(e){
