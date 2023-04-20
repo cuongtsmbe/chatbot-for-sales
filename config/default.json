@@ -33,6 +33,9 @@
         "buyer"     : 5,
         "order"     : 5,
         "prompt"    : 5
+    },
+    "fanpage" :{
+        "trial_days"     :6 
     }
 
 }

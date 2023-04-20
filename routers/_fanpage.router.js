@@ -125,7 +125,7 @@ module.exports = {
             name                    :req.body.name,         
             active                  :req.body.active,         
             user_id                 :req.user.user_id,        
-            payment_due_date        :req.body.payment_due_date, 
+            payment_due_date        :null,
             status                  :1         
         };
         
@@ -156,6 +156,20 @@ module.exports = {
                     message: "Invalid user_id(UUID) format",
                 });
         }
+
+
+        let currentDate = new Date();
+
+        // Cộng thêm thêm trial_day ngày tính từ ngày hiện tại.
+        let dueDate = new Date(currentDate.getTime() + (config.fanpage.trial_days * 24 * 60 * 60 * 1000));
+
+        // Định dạng lại ngày tháng năm
+        let year = dueDate.getFullYear();
+        let month = String(dueDate.getMonth() + 1).padStart(2, '0');
+        let day = String(dueDate.getDate()).padStart(2, '0');
+
+        value.payment_due_date = `${year}-${month}-${day}`;
+
 
         //validate input value
         var validationResult=validateFanpageUserRegister(value);
